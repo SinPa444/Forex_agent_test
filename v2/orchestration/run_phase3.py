@@ -17,7 +17,7 @@ import hashlib
 
 from core.database import init_db, TradeOutcomeDB, StrategyPlanDB
 from agents.fundamental.phase2_graph import build_phase2_graph, build_cross_asset_graph, get_temporal_context
-from agents.technical.technical_analyzer import TechnicalAgent
+from agents.technical.technical_analyzer import TechnicalAgent, TechnicalReport
 from agents.technical.mtf_scanner import scan_timeframes
 from agents.risk.risk_manager import (
     RiskManagerAgent, RiskDecision, TradePlan,
@@ -266,7 +266,7 @@ def main():
             logger.info(f"[{ccy}] Fundamental Agent fully skipped by Head Agent.")
             
         # 3. Technical Agent — Phase 7: اسکن چند تایم‌فریمی deterministic + narrative فقط برای قوی‌ترین TF
-        tech_metrics, tech_report, mtf_matrix = None, None, None
+        tech_metrics, tech_report, tech_signal, mtf_matrix = None, None, None, None
         if plan.activate_technical:
             logger.info(f"[{ccy}] Running MTF scan (W1/D1/H4/H2/H1/M30/M15 — zero LLM)...")
             try:
@@ -276,12 +276,33 @@ def main():
 
                 # narrative LLM فقط برای قوی‌ترین تایم‌فریم (هزینه ثابت: ۱ کال)
                 strongest = mtf_matrix.strongest()
+                tech_signal = None
                 if strongest is not None:
                     logger.info(f"[{ccy}] LLM narrative for strongest TF: {strongest.timeframe} (score {strongest.score:+.2f})")
-                    tech_metrics, tech_report = tech_agent.analyze(
-                        route.ticker, timeframe=strongest.timeframe, temporal_context=temporal_ctx
+                    # P0: خروجی ساخت‌یافته TechnicalSignal + تفسیر LLM
+                    tech_metrics, tech_signal, tech_interp = tech_agent.analyze_structured(
+                        route.ticker, timeframe=strongest.timeframe,
+                        temporal_context=temporal_ctx,
+                        mtf_matrix=mtf_matrix,
+                        mtf_scores_roles={tf: s.role for tf, s in mtf_matrix.scores.items()},
                     )
-                    logger.info(f"[{ccy}] Technical ({strongest.timeframe}) Dir: {tech_report.direction} | Score: {tech_report.score:.2f}")
+                    # برای سازگاری با مسیر legacy، از TechnicalSignal یک TechnicalReport می‌سازیم
+                    if tech_signal is not None:
+                        strategy_text = (
+                            tech_interp.interpretation if tech_interp else tech_signal.reasoning_summary
+                        )
+                        reason_text = (
+                            tech_interp.narrative if tech_interp else tech_signal.reasoning_summary
+                        )
+                        tech_report = TechnicalReport(
+                            direction=tech_signal.direction_value,
+                            score=tech_signal.score,
+                            confidence=tech_signal.confidence,
+                            strategy=strategy_text,
+                            reasoning=reason_text,
+                        )
+                    logger.info(f"[{ccy}] Technical ({strongest.timeframe}) Dir: {tech_report.direction if tech_report else 0} "
+                                f"| Score: {tech_report.score if tech_report else 0:.2f}")
             except Exception as exc:
                 logger.error(f"[{ccy}] MTF/technical pipeline failed: {exc}")
                 
@@ -421,6 +442,13 @@ def main():
                 reasoning_parts.append(f"[Fundamental]: {fund_sig.reasoning}")
             if tech_report:
                 reasoning_parts.append(f"[Technical]: {tech_report.reasoning}")
+                if tech_signal is not None:
+                    reasoning_parts.append(
+                        f"[TechnicalSignal]: regime={tech_signal.market_regime}, "
+                        f"structure={tech_signal.market_structure}, "
+                        f"mtf_alignment={tech_signal.mtf_alignment}, "
+                        f"risks={'; '.join(tech_signal.risks[:3])}"
+                    )
             reasoning_parts.append(f"[Risk Manager ({risk_decision.decision})]: {risk_decision.reasoning}")
             if risk_decision.trade_plan:
                 tp = risk_decision.trade_plan

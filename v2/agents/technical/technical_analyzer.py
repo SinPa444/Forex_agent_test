@@ -33,6 +33,14 @@ from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel, Field, field_validator
 
 from core.llm_utils import invoke_with_retry, _strip_json_markdown
+from core import technical_config as cfg
+from agents.technical.technical_signal import TechnicalSignal, build_technical_signal
+from agents.technical.market_structure import structure_score_for_component
+from agents.technical.prompts import (
+    TechnicalInterpretation,
+    TECH_INTERPRETATION_SYSTEM_PROMPT,
+    build_technical_narrative_prompt,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +104,7 @@ class TechnicalMetrics(BaseModel):
     trend_status: Optional[str] = None
     adx_value: Optional[float] = None
     recent_bos: Optional[str] = None
+    recent_choch: Optional[str] = None
     active_bullish_ob: Optional[float] = None
     active_bearish_ob: Optional[float] = None
     active_bull_fvg_low: Optional[float] = None
@@ -178,6 +187,18 @@ def _fetch_price_history(ticker: str, interval: str = "1d") -> Optional[pd.DataF
     except Exception as e:
         logger.error(f"Failed to download price history for {ticker}: {e}")
         return None
+
+def _last_frame_for_signal(ticker: str, timeframe: str) -> Optional[pd.DataFrame]:
+    """
+    آخرین DataFrame برای محاسبهٔ ATR/swing/structure در TechnicalSignal P0.
+
+    P1 می‌تواند این را به داخل `calculate_technical_metrics` منتقل کند تا
+    دانلود تکراری حذف شود و `TechnicalMetrics` خودش df را نگه دارد.
+    """
+    interval = TIMEFRAME_MAP.get(timeframe, "1d")
+    data = _fetch_price_history(ticker, interval=interval)
+    return data
+
 
 def _clamp(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
@@ -349,20 +370,32 @@ def calculate_technical_metrics(ticker: str, timeframe: str = "D1") -> Technical
         if swings is None:
             swings = smc.swing_highs_lows(df)
             
-        # Structure (BOS)
+        # Structure (BOS + CHoCH) — P0: هر دو ستون استخراج و استفاده می‌شوند.
         if swings is not None and not swings.empty:
             bos_df = smc.bos_choch(df, swings, close_break=True)
             if bos_df is None: bos_df = smc.bos_choch(df, swings)
-            if bos_df is not None and not bos_df.empty and 'BOS' in bos_df.columns:
-                bos_events = bos_df.dropna(subset=['BOS'])
-                if not bos_events.empty:
-                    last_bos = bos_events.iloc[-1]
-                    if last_bos['BOS'] == 1:
-                        metrics.recent_bos = "Bullish BOS"
-                        components.structure = 0.8
-                    else:
-                        metrics.recent_bos = "Bearish BOS"
-                        components.structure = -0.8
+            if bos_df is not None and not bos_df.empty:
+                last_bos_dir, last_choch_dir = 0, 0
+                bos_col = next((c for c in bos_df.columns if str(c).upper() == "BOS"), None)
+                choch_col = next(
+                    (c for c in bos_df.columns if str(c).upper() in ("CHOCH", "CHoCH") or "CHoCH" in str(c)),
+                    None,
+                )
+                if bos_col:
+                    bos_events = bos_df.dropna(subset=[bos_col])
+                    if not bos_events.empty:
+                        last_bos_dir = int(bos_events.iloc[-1][bos_col])
+                        metrics.recent_bos = "Bullish BOS" if last_bos_dir == 1 else "Bearish BOS"
+                if choch_col:
+                    choch_events = bos_df.dropna(subset=[choch_col])
+                    if not choch_events.empty:
+                        last_choch_dir = int(choch_events.iloc[-1][choch_col])
+                        metrics.recent_choch = (
+                            "Bullish CHoCH" if last_choch_dir == 1 else "Bearish CHoCH"
+                        )
+                comp_struct = structure_score_for_component(last_bos_dir, last_choch_dir)
+                if comp_struct is not None:
+                    components.structure = comp_struct
 
         # SMC Location (OB & FVG)
         fvg_df = smc.fvg(df, join_consecutive=False)
@@ -561,11 +594,8 @@ def calculate_technical_metrics(ticker: str, timeframe: str = "D1") -> Technical
     
     # --- Calculate Final Technical Score ---
     # وزن‌ها پس از ارتقا به ۱۰ فاکتور — ساختار و موقعیت SMC همچنان سنگین‌ترین‌اند
-    weights = {
-        "structure": 0.20, "smc_location": 0.15, "trend": 0.13,
-        "liquidity_sweep": 0.12, "mtf_confluence": 0.10, "ote_zone": 0.10,
-        "pdh_pdl": 0.08, "momentum": 0.06, "volatility": 0.04, "price_action": 0.02
-    }
+    # P0: وزن‌ها از core/technical_config.py خوانده می‌شوند (برای کالیبراسیون P1)
+    weights = cfg.TECHNICAL_WEIGHTS
     
     # Only calculate score if at least Structure or SMC Location is evaluated
     if components.structure is not None or components.smc_location is not None:
@@ -625,6 +655,7 @@ Market Context:
 - Trend Status: {trend_status} (ADX: {adx_value}, CHOP: {chop_value})
 - Higher Timeframe ({htf_interval}) Trend: {htf_trend_status}
 - Recent Break of Structure: {recent_bos}
+- Recent Change of Character: {recent_choch}
 - Liquidity: {liq_status}
 - Previous Day High/Low: {pdh} / {pdl} — {pdh_pdl_status}
 - OTE Zone: {ote_status}
@@ -651,6 +682,57 @@ class TechnicalAgent:
         ]).partial(format_instructions=self.parser.get_format_instructions())
         
         self.chain = self.prompt | self.llm | RunnableLambda(_strip_json_markdown) | self.parser
+
+    def analyze_structured(
+        self,
+        ticker: str,
+        timeframe: str = "D1",
+        temporal_context: Optional[dict] = None,
+        mtf_matrix=None,
+        mtf_scores_roles: Optional[dict] = None,
+    ) -> tuple[TechnicalMetrics, TechnicalSignal, Optional[TechnicalInterpretation]]:
+        """
+        P0: خروجی کامل TechnicalSignal + تفسیر LLM (اختیاری).
+
+        - TechnicalSignal کاملاً deterministic است.
+        - LLM فقط narrative را تولید می‌کند؛ اگر شکست بخورد،
+          TechnicalInterpretation=None و سیگنال همچنان قابل استفاده است.
+        """
+        metrics = calculate_technical_metrics(ticker, timeframe=timeframe)
+
+        # df برای ATR/structure/swing لازم است؛ از همین محاسبهٔ آخرین fetch استفاده می‌کنیم.
+        df = _last_frame_for_signal(ticker, timeframe)
+
+        signal = build_technical_signal(
+            ticker=ticker,
+            timeframe=timeframe,
+            metrics=metrics,
+            df=df,
+            mtf_matrix=mtf_matrix,
+            mtf_scores_roles=mtf_scores_roles,
+        )
+
+        if signal.score is None or signal.direction_value == 0 and signal.score == 0.0:
+            # هنوز از یک TechnicalSignal valid استفاده می‌کنیم؛ فقط LLM narrative را با خروجی
+            # خنثی هم می‌توان تولید کرد اما برای صرفه‌جویی skipped می‌کنیم.
+            return metrics, signal, None
+
+        try:
+            parser = PydanticOutputParser(pydantic_object=TechnicalInterpretation)
+            prompt_tmpl = ChatPromptTemplate.from_messages([
+                ("system", TECH_INTERPRETATION_SYSTEM_PROMPT),
+                ("human", "{prompt_text}"),
+            ]).partial(format_instructions=parser.get_format_instructions())
+            chain = prompt_tmpl | self.llm | RunnableLambda(_strip_json_markdown) | parser
+            interp = invoke_with_retry(chain, {
+                "prompt_text": build_technical_narrative_prompt(signal),
+            })
+            if not isinstance(interp, TechnicalInterpretation):
+                raise ValueError("LLM returned unexpected type")
+            return metrics, signal, interp
+        except Exception as exc:
+            logger.error(f"[Tech Agent] Structured narrative failed for {ticker}: {exc}")
+            return metrics, signal, None
 
     def analyze(self, ticker: str, timeframe: str = "D1", temporal_context: Optional[dict] = None) -> tuple[TechnicalMetrics, TechnicalReport]:
         """Fetches metrics, calls LLM for strategy, returns full report."""
@@ -697,6 +779,7 @@ class TechnicalAgent:
             "adx_value": f"{metrics.adx_value:.1f}" if metrics.adx_value else "N/A",
             "chop_value": f"{metrics.chop_value:.1f}" if metrics.chop_value else "N/A",
             "recent_bos": metrics.recent_bos or "None detected",
+            "recent_choch": metrics.recent_choch or "None detected",
             "active_bullish_ob": f"{metrics.active_bullish_ob:.4f}" if metrics.active_bullish_ob is not None else "None nearby",
             "active_bearish_ob": f"{metrics.active_bearish_ob:.4f}" if metrics.active_bearish_ob is not None else "None nearby",
             "active_bull_fvg_low": f"{metrics.active_bull_fvg_low:.4f}" if metrics.active_bull_fvg_low is not None else "N/A",

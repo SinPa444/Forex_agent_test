@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.venv-*/
+venv/
+
+# Pytest / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime artifacts (keep out of source control)
+*.log
+.DS_Store
