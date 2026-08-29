@@ -1,0 +1,309 @@
+{
+ "currencies": {
+  "USD": {
+   "news_links": [
+    "https://investinglive.com/central-banks/fed-s-schmid-says-current-interest-rates-are-not-restraining-the-economy-credibility-intact/",
+    "https://investinglive.com/central-banks/will-warsh-play-it-cool-and-let-bessent-take-the-wheel-for-now/",
+    "https://investinglive.com/commodities/gold-bulls-on-edge-ahead-of-fed-chair-warsh-speech-at-jackson-hole/",
+    "https://investinglive.com/commodities/silver-consolidates-as-traders-await-fed-chair-warsh-speech-after-us-treasury-intervention/",
+    "https://investinglive.com/forex/eur-usd-remains-supported-amid-bessent-put-steady-inflation-traders-await-warsh-s-speech-at-jackson-hole/",
+    "https://investinglive.com/news/investinglive-european-markets-wrap-dollar-steadies-us-futures-up-as-traders-look-to-jackson-hole-next/",
+    "https://www.fxstreet.com/news/brazilian-real-rate-cuts-may-support-brl-against-us-dollar-societe-generale-202608270818",
+    "https://www.fxstreet.com/news/british-pound-extends-losses-as-us-dollar-holds-ground-on-fed-rate-hike-bets-202608270809",
+    "https://www.fxstreet.com/news/indian-rupee-yields-looking-attractive-after-sell-off-dbs-202608270914",
+    "https://www.fxstreet.com/news/nzd-usd-price-forecast-kiwi-dips-below-05950-as-us-dollar-strengthens-202608271142",
+    "https://www.fxstreet.com/news/silver-price-forecast-xag-usd-remains-sideways-near-6850-fed-warshs-speech-awaited-202608271143",
+    "https://www.fxstreet.com/news/united-states-dollar-index-gains-support-as-strong-us-data-sparks-rate-hike-expectations-202608270916",
+    "https://www.fxstreet.com/news/us-dollar-policy-reality-supports-resilience-ocbc-202608270949",
+    "https://www.fxstreet.com/news/us-dollar-warsh-speech-keeps-markets-cautious-ing-202608270847",
+    "https://www.investing.com/news/economy-news/anxious-investors-hope-for-clarity-on-warshs-fed-plan-at-jackson-hole-4876622",
+    "https://www.investing.com/news/economy-news/dollar-near-eightday-high-as-us-data-lifts-fed-hike-bets-4878113",
+    "https://www.investing.com/news/forex-news/asia-fx-mixed-dollar-holds-gains-ahead-of-jackson-hole-won-rises-on-bok-hike-4878318",
+    "https://www.investing.com/news/forex-news/euro-yields-bounce-off-2week-lows-as-schnabel-warnings-dampen-rally-4878481",
+    "https://www.marketwatch.com/story/2-charts-show-why-beaten-down-treasury-bonds-may-be-due-for-an-epic-rebound-rally-50eaf9dd?mod=mw_rss_topstories",
+    "https://www.marketwatch.com/story/jackson-hole-is-warshs-chance-to-win-over-his-fed-colleagues-and-investors-8e21c8fc?mod=mw_rss_topstories"
+   ],
+   "pending_items": [],
+   "last_regime": "Trending",
+   "last_fired_at": "2026-08-27T11:54:55.322966",
+   "last_analyzed_at": "2026-08-27T11:54:55.322966"
+  },
+  "EUR": {
+   "news_links": [
+    "https://investinglive.com/central-banks/ecb-s-radev-says-october-and-december-meetings-remain-live-policy-to-be-guided-by-economic-data/",
+    "https://investinglive.com/central-banks/policymakers-concluded-that-risks-to-the-inflation-outlook-are-tilted-to-the-upside-ecb-accounts/",
+    "https://news.google.com/rss/articles/CBMibkFVX3lxTE5tSUxsUmotTGpxaThXTUxnb2Z4NWlsaWRBQTRRUHRyNXVVTXlsVE43S28xUjctc0QtZFN0LUdfNTlqU2pSbWQyVUtfQTNDWjhaaVEzWTZKWk5vcTNMYkhSMGdIbndNcF9KMVdjQVZB?oc=5",
+    "https://news.google.com/rss/articles/CBMidkFVX3lxTFBuMlFtc2NDZS15R25HY2FHNUdSSmc1YkdWYXlEOVlaMTV2MjV6Y1dEcnNVczcxRUl2WHFpVkJiNUhoUXc1dS1oanhaSkVJbFhmR09aNGZwanVkc0JqX0ttcXNDZWk2QW93RFBtZlNVdGkwRkU5VUE?oc=5",
+    "https://news.google.com/rss/articles/CBMigwFBVV95cUxNZ1pWb0wtNXlnVU1aY2x0enU5UG9rcUZLeTk5Nm92Z2dpTUJzcHJiRlhoNW5RMnZuWDVVU1Bady1WLTBMdUpSMG5QMUtNckMweFZuRFNTM0ljNWZvcHZZbzdEZTVzbE9EN0IxZG9hV1I4SC11RVlPaVlCeFZwWDZTS3lsMA?oc=5",
+    "https://news.google.com/rss/articles/CBMihwFBVV95cUxNSXozRGZtSmlia3FiU2ExX3MwLVlETWlWek9mWDRWdGVjZUpfNWxkOU1MVVQ5MFFmZkQ3cUJBWFZIZmhVZHQzamtPOGctdS1MM2JpQlNEamx6MnR6cGNvMk5KaUZOZ3FHM3dtbUdiT2QyQmYyazZYZHBhakgzSWpfbGxUS1pFSVU?oc=5",
+    "https://news.google.com/rss/articles/CBMimgFBVV95cUxNTWFJZGJPVUlDVXFZZEg2UldKNEZMaVpIM1d1RWJiLWY3SmcxWjRWLTlmWjllUng4S3Vyc2JsdXRjU0ptQ0Y2MlA4V2g0WGtSZW4zOEF3ak94Nm45LXE3cm9hQVJITGRYWWx5X1FVSDd5ek9GV0EzdWtJOEZKZ0ZHYUJHOWFYZXYzc3VXVkF5aHY1LWRUSUVfby1R?oc=5",
+    "https://news.google.com/rss/articles/CBMinwFBVV95cUxNT1d0U3FnTlU5SGJGYXdKeEhaY0J0UEFxVlM0UTZWY1Z3c2NhaFhyMUVYNGtQTTU2ME9RUnpGSk8wVldRMkxZcFo2d1hGb0xaNjJkeFVObW5XVk11YnJtNDE3Y0xzQ3FsUVEtRnlNaGplb2p6VU51MkdiOW1zM0I2Nnkta0FRY29EU0JRSHZ3WmlxclRjbm1LQzBaVFZIdGM?oc=5",
+    "https://news.google.com/rss/articles/CBMinwFBVV95cUxOamJfeGxwaUwtZHV1LW5OeFRpenFuUnZ5Y215OUFQbVhid00xb2VLVWU3SC1MQ3N5Q19EYmxFMm9wZ1pSeDJIdlRDRTlkT0R1azBGQURtMERENW9HeEltRmtYdXI3ejRqbnhzMDhST0xnT194OUJwX1BmanB1QXFBMzRERDNRNjBVOWhjTm5mMzZ3bHk3ektsSHQwajdNUkU?oc=5",
+    "https://news.google.com/rss/articles/CBMipgFBVV95cUxOdDV3ZFhjZUhkNnlHQmRoVW9BYzYzU1l3LVZvajRjQ1M1OW1iSTlmOTBJT0E5OU5MWk9mYU8xYzBCbHJuWGRMU291cmZ4aWtCcFNNY2FxX1ZDMkx6Vzh0d016MjR2QldCdUJ6cVZ0T1E2U1hZaUJxaW9xN0xoUm1lclVuME9kYWVYQXF5UkpLdUhWTVFFaVlyam1MREpYZGkwbmhmajFn?oc=5",
+    "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPSnM3N2VwX0hwNmtxanlnOWZYVURsdS1HandjMjUxNnB2dkYzZnpKSUxhT1htM2lxanp2R0ZqTGdWdUpJR3dJNU1PV1k1RjVQOE15d3FlYnhXVm1nYm1abTRkNzY0czBvNklkZmd4eG5VWnotV0JLM25YSXh0d2tZWHdla3NROWpoT1FkV1BGT3dPYmFnZWdQNTV2TGd2ZUhYN1dYUUFPaFZELTA?oc=5",
+    "https://news.google.com/rss/articles/CBMisAFBVV95cUxOSWpNOERxWXM4MGo2ZjBXNkJuLTlsWXlQTER3YkhDOU5BOHRRZmY3Qk1Jb0lyTndYRlpGaVMteTNscllTYW5rQVY5S3hSZ2VZMmIzd2hFR252UnZqMVRIWU1nRTF4Z1N5eWM5SmthUUd0ODJlT3lYMC1GUlEzTGc1dThpdnNJWjBsZlJVLTJqUVhocnAwNnlPTnpVSFNpSFZab1VhYUp4VGxub2ZNM3l6Rg?oc=5",
+    "https://news.google.com/rss/articles/CBMitAFBVV95cUxNaHpuQURwb0FyMW1XajlCdEpWRFhoSi1Pd3dFRG9jOXlYZXI1eFdiTGI5SS04MHdNdVJ0LW0zWGl0UlNsZUNRQlZSN2FyenpBWHN3bWs1bVMyOS1oYi00cmV1SGd5S25MNGx5TloxX1FzVWdkTkVPRzZVR3c0M3lIckcxWV9hLUJ6d1p4Q0dMNWpuUVozQnFMQUx3bHNlbHl4Y0liWmFwclo5UjlUX3g5Vi1ObnE?oc=5",
+    "https://news.google.com/rss/articles/CBMivgFBVV95cUxPOURSb184VzlpaHE2VERhSlM2dElhOUl0dnl0UktoaEZ1YWFldDF1bFEwUTNfeDRBakV0QmZpcGl1dnJxNmg4ZGdMeTRQbGxtdEhFUjJ5TFZkMFVxdVp2bFV2RF96Z1BDaWNVRmZ5OXlld2FKUGRZZjM0cldDbXkwRngtN2M4TDVBQUlJcURyOHpkZ01OY0h3eVZ0eVRwZmhSRlltLWp3QXpVckFSbmJKY0VFS3hvNVZzNVBmVmlR0gG-AUFVX3lxTE85RFJvXzhXOWlocTZURGFKUzZ0SWE5SXR2eXRSS2hoRnVhYWV0MXVsUTBRM194NEFqRXRCZmlwaXV2cnE2aDhkZ0x5NFBsbG10SEVSMnlMVmQwVXF1WnZsVXZEX3pnUENpY1VGZnk5eWV3YUpQZFlmMzRyV0NteTBGeC03YzhMNUFBSUlxRHI4emRnTU5jSHd5VnR5VHBmaFJGWW0tandBelVyQVJuYkpjRUVLeG81VnM1UGZWaVE?oc=5",
+    "https://news.google.com/rss/articles/CBMixgFBVV95cUxPM2FrVTdXc1VYY1VPSmk0aHMwbXBUcEVUNFE5Q0lqZ09CdnQzaldXbDhxZEFMbVRoVXJwanVYeXEyZHptU2RLLXNDTUc5UUJpdzU4dFk4VGNYTXBLOG5jal9BNmVqM1ZYVldpcnlvejF0M2dFUkZiWDdTNnJEdW1ySEFINjFxU3drLXNpZVVESXhGbzFVemJkVkxKbTNIMF94WnNweG9aSl9wdXUtZ0ZObmMtSmxwSkJWTUhYa0tSUV9yTHUtYkE?oc=5",
+    "https://news.google.com/rss/articles/CBMiygFBVV95cUxPUlZGR2o3Wm9RUkJJd1lLZl9NZVVDQVdmQVZFeDZZaGZIWTBMUnNqd1loMHhqZEc1OXQwUWpRcVpoWU1KckpnNnF6WkZoREhhb2NJY3d1ODBBdFA1R0JJQUd4SUwwTjNqRDdhaURyUk01MERkeWtMVDJlcllDQVl4UmFpNkoycVJ3d0ZVa1VyLUQ4aENicEdRLThSQnctdUhuSDRVLUVxUHpRdWtuLTloWHQxbF9FRmphRW01OGN4dE8zQlE0Z29iOUNR?oc=5",
+    "https://www.fxstreet.com/news/euro-steadies-against-canadian-dollar-following-stronger-german-consumer-confidence-data-202608270857",
+    "https://www.fxstreet.com/news/polish-zloty-import-pass-through-risks-challenge-cuts-bny-202608270858",
+    "https://www.investing.com/news/economy-news/ecb-saw-a-future-hike-as-likely-at-july-meeting-4879079",
+    "https://www.investing.com/news/economy-news/germanys-labor-market-shows-signs-of-improvement-in-august-93CH-4879072"
+   ],
+   "pending_items": [],
+   "last_regime": "Trending",
+   "last_fired_at": "2026-08-27T11:54:55.322966",
+   "last_analyzed_at": "2026-08-27T11:54:55.322966"
+  },
+  "OIL": {
+   "news_links": [
+    "https://investinglive.com/forex/indian-rupee-erases-most-of-tuesday-s-gains-as-oil-prices-rebound-on-lack-of-us-iran-deal/",
+    "https://news.google.com/rss/articles/CBMi1AFBVV95cUxNdkpUQUN3ODRuTTJNOC1nTEFMT0lPdTNEOFloWThuRGU4MkRLMmZkWXhxM3hVZUotVXgxRzZmUTZVUFhQWFJ1UEhleHpNYm1JNjk4ak96RmVjamFYcFV3V2hkQUM1MW1hX1lkZ0k2cGZ0SkdUakt5azdvRy1lMUpReW1iR0VoU0lYbnBlcXdZc2FLV3hwc2N4bXdLeGJFTU1zQlhFQ3dYX09GNDFfOWlOZDUwZUI1MXNJaHZKN3pvRTFhY0FESk1fRThLQUtTQ29QcjR1aA?oc=5",
+    "https://news.google.com/rss/articles/CBMidkFVX3lxTE1PVVNPNEpaY19FRzVJUzB5elp0SEc0emhqWXZQTWgtRDZlWTJHenUwYXZIRGYxcGcyODhEUGpIaG9PSmtMaXFqbWpaMmlzYWNiZlZlMW5JdzhwMy1HWWRsLUhNUmxfamgwd0dCcmcxZjVHbUpPUnc?oc=5",
+    "https://news.google.com/rss/articles/CBMijgFBVV95cUxNNlhTNFYtY2NIbkVkZ21HQ2wyckRqOTl3Mms5MlYxRjJVbjgzS3hKNkJud0NJeXUzU2dfLXhoMVpUZmM4Y2NfcjU0Q0tUaFdwZlR5SkpzYzd3RVQxZHhpbVhTTGl4WEk0NVRkTEo1QnhPNDVJQkRXdkVCMU9MUGV6WjVXeDNXQmRYSld4X3J30gGTAUFVX3lxTE9jV1Via2NUUFJBQXYtUTFfcTM5eHplclRqaUhLN0lxZk5BMFV6dWNaZkpyX3JlTWdrcjZ0bWpPLWgtQmlvLWlCTlVlVXdDLThWOEYyMHgwUF9Hb3c2V0FfazhfdHI5Y1gzWXd4NmlSUFpCZEU2RXFFMFkzTXNlVmd4TGdiNXVBbU1EeUN1YlhRT1gxdw?oc=5",
+    "https://news.google.com/rss/articles/CBMikgFBVV95cUxQekFySjhrRWZsYVNQTlNjNDJYenVWWl92TnNyZ0JOTmsxUEt0RXJQY1pDTnBtd0RDSS1ZSzFfRlRMYjI0dEUzajZqSGlWODlLc0sxT2RvaW1ubThhalEtVy05aTJtWG1IeVU0a01KQWNuLV92Y1JONFZTaHpqTXo4aVMzbFB5Uk1BbE0yX2Y5c1hCdw?oc=5",
+    "https://news.google.com/rss/articles/CBMilAFBVV95cUxOenlxMHlzVjZ3aXhseEdBSnZWMll1QVpzdmd0OXJXV3hKdF9zOHpJTDVYLTFNUG1qWkRGOXZxaWFhYzZTWGxMdTFoekhaWnNzYTY5Q0ozamNJRzR3bW1uNXZ4V0pSU3hZeE16MElVUHJ4c0R4azZXUlYzMV9SaUl0Y2t5azFWcWhDZXBZOHIzOUlnQXZv?oc=5",
+    "https://news.google.com/rss/articles/CBMinAFBVV95cUxOaXlkckxGSnFLMloxczlXcTNib0E2Vl9Ia1V0bE9jUENfQ1Vqd3N2NTZ6OEdnMllCN1FRZFlJTENZdGowYjRnTnl5eGtkcUVEUktqVmgzYTlETTNUa2hibWpFcGRKM00yRmJoNTRMaFRHQ0ZqMnY4OXdwd3FrRjNfMC0wUmo3RU8ycWFHVC1CSGk3NXhQbVpMV2IybkY?oc=5",
+    "https://news.google.com/rss/articles/CBMinAFBVV95cUxPdVJKejZndm9PMTlqQTM3dW5YcURjbTloMlhvVTRsd0dCcVNVVUxnX3hqSVNEeVVVOXduNF9rM0NrQmhMWElFb0VGcV9nY0VuS2VublRBVTBoeTJjcWRYczMxZTN3dWJtc1RfMHlFUlRWcmlHZWxib29mS3MwNFMxNE1LcDQ1TlRzRUNXazZPVDBVbjFWVy11UjgydGPSAaIBQVVfeXFMT2JEdXMxU3dQTVdyeDVlY2NtelpxZWlPODlWQUJTRDRsbko4eGJ3V3gwVThwakdpX0FEd1RRUDBSb1RHaUhUdlN3ZkQyR3RZZk85bDhWS0t2U0diMTM3LURKVGlEdlQteE5aNTBURzgtQ1lQLV9WdjRZM0xCTGVpQjRIT2NnS1Z3NjhPUjRDUzF5QW1QMmk5YnpjZDV2REFmWDR3?oc=5",
+    "https://news.google.com/rss/articles/CBMiowFBVV95cUxQSGwxWHQ0ZGNSbWZmS2FUc2Uxb0NpVm5fck4wSTdTY1ZDUDVDZ0Q1ZXVKMVZKeWRBdjZRQmI1azlfenZ0ZTd5SDN2QjVLYkdnQ0x5X3RWMTFlaHdYekdVUFB5UXl4MG5CbmFxdi12MHBUdUk2NmhVWkN5YWFqb2NYejBTX25zNk9iWlNEZWZuR014anZ0OVhOUHdOeFhib253c0gw?oc=5",
+    "https://news.google.com/rss/articles/CBMipwFBVV95cUxPZ0dmOEdBVW5VY3V1aHNuMnRmdzVFQi13T2puRnlWY0g4WEVWOGhxcDhhSGczOWppdzNUNG1xSHpma2d0SmJ1R3Rwdm14dUswT3BnZzBsdjV2WjNSamQtT054dnRsZm93U0xiRjI3SXl4dXVTeUhzYzQwbUNxT0ozUElwMEdsZHBrMW83MnFzR185VTNidWp1TDNTUWFTVkstNDhnVXdDSdIBrAFBVV95cUxOdnlsVFRpOWZjSnZfWXNXckNoWUI2OXUyRGNfVHdaM2VWU1ZYV0tMVmludjlSOEx3WXlvUWw1SC1raU1UMU9iaTFzcmM2S0V6cDZJSFQ1T2VmZlJyN1FQMXRvamthLXV0WkpXX09MQTZTS1NLLWRMWjE1ckhNYXg3OHpCanhqVGJWOXlFaGlvaVBOTnR5Yk9SenpMbEJRVVBuMl8xVUl3TVBlMDUz?oc=5",
+    "https://news.google.com/rss/articles/CBMirgFBVV95cUxOdzQ5cjA0LVhLZTN3aEpkcDBvMXNmV3BnTHVtMFBzZnFfN05PSXFjZFAyUTZ3OEtBTnVCRDhIQXkwbGMwUFZSSTBLek9IbmNqTG16bGdlVlVjOHZ1ZER2c3Z5aXJuaV95ZFFObV9XZlYwNHNqdXcxN2FzeVRkSDF1OURPRThrUHhjOThzTEFyY1NBSG10Zlh4VXRTQWhzMXg3TGJINkRyWGhHLTd1NHc?oc=5",
+    "https://news.google.com/rss/articles/CBMirgFBVV95cUxPeVgwX0w1ZkRBRHFySWdWdjRTSi0xQUxKOEMtNmdqU1haSG1XVm14TnVJMTVhdXowMFlZOGNnNkVHWHVwa1hIWW1BNHhZUHBWRjBJZFhjSUV3TmpCSHJoRnV0YjdBdnp4MUF5dDN0bm1MUEpvNUt1aFlXSC1jLTNxRlZ0UWFrR1RYUDR1NkJRcy1fUGhpZkw3MmZKZUQ3MVlLUktQSVY3aXJwYTVQQ0E?oc=5",
+    "https://news.google.com/rss/articles/CBMitAFBVV95cUxNQ1lBemxnOGhmTE0wcWcyUlpIOE1UY2hOWTV1bWNmcHI3VnphREJqMGhSeWg1QUhGUGRmam5JbWJJZGEzZTBCTTd3YVZ5cDBJTzBpTGxLMFYzLUNCVW1SZlVITzludF9VaXphVzl3aG5LUHpTV3U0N19FczJEQ2xFOFZOV2VXeEx1WHZUdmlwN1Njc2F3ajRIR0ZoMnJLQURWZGdBd2RIU3A4cFViN1pHREt0OHDSAbQBQVVfeXFMTUNZQXpsZzhoZkxNMHFnMlJaSDhNVGNoTlk1dW1jZnByN1Z6YURCajBoUnloNUFIRlBkZmpuSW1iSWRhM2UwQk03d2FWeXAwSU8waUxsSzBWMy1DQlVtUmZVSE85bnRfVWl6YVc5d2huS1B6U1d1NDdfRXMyRENsRThWTldlV3hMdVh2VHZpcDdTY3Nhd2o0SEdGaDJyS0FEVmRnQXdkSFNwOHBVYjdaR0RLdDhw?oc=5",
+    "https://news.google.com/rss/articles/CBMitgFBVV95cUxPdC1WazNGQnRDX0ltNTBQTnhzYzJxbzliVlA3UUd1eGw3ZTlFb29NV0RsZGFzRkV5SG5HREtyczNRczAwbVJBNzBYdzNaV0VNR0dhXzRsZHRid1pKckNzRWhlRTlkQ0pDb1l2emZUeTBQaFgtQVU1TkNVY1Nadzl6QUk3Q2dQX29YUVNNNXBnMllsNjJoQXVCUjZtcDMteDBiYi02cVJBTFRyTFljOG5KMm52ZWphZ9IBtgFBVV95cUxPdC1WazNGQnRDX0ltNTBQTnhzYzJxbzliVlA3UUd1eGw3ZTlFb29NV0RsZGFzRkV5SG5HREtyczNRczAwbVJBNzBYdzNaV0VNR0dhXzRsZHRid1pKckNzRWhlRTlkQ0pDb1l2emZUeTBQaFgtQVU1TkNVY1Nadzl6QUk3Q2dQX29YUVNNNXBnMllsNjJoQXVCUjZtcDMteDBiYi02cVJBTFRyTFljOG5KMm52ZWphZw?oc=5",
+    "https://news.google.com/rss/articles/CBMitwFBVV95cUxNb0FHX0RLN1EtNk41Y1lOdVk5dVVYbDZLWmhCSnlzZnRIMjdjNm1GVkFzcUV6aTVCenN4UXloUDdwYlJ2ZGg3TTZBX0R6UEVyeUpMZGU0bndhd0VQMUcyakI4Skl5Rk01a2FCUEN1cHZ3MWFET3ZGLWs3Y2VCaDlzRHMxM1lmZkJYRXRJOXUzam56TmpGbVN3T2tlSVpoUFBIbXJpSjFuYzV6RnVUd3dJY1lSMzVmenPSAbwBQVVfeXFMTzRrZWhnbzIwWDBmREtqRE5ydERVWGN1RXBzZzYzZUFTOXNBX1Npd0ItZTlCWDlXdVIyODZyc3EyaDM4SmJiR0VBMmRfUUtzOWNtWmxlNHlvUVJ2cnlad1p5SFM0ZXRTNDRDQzQ2UEhobGtUeUJvakJ2djJmX0V6cVFDTHZhSVZudlgtTFM5T213U200Y3FDUmFpRmpPa1laOTRXZ3lBamFYQkpkdXgzSURnX2Zsb0NJN2dCdDc?oc=5",
+    "https://news.google.com/rss/articles/CBMiuwFBVV95cUxPaVZlNU1pRHR2dDBQM09KWEdGaGJRVDdUWXVfR2xoX2xSaWNveTlqdzl0LXRSZDZzSFdHUG1ndnNOeTZVOXpwNHQ2aFo1M3ZjVkY3QjRKWVRkNnJBTDM1dTkyaW1nNkpkeGxYLW5CeV9nTjJhUkJiOXRzSm5Mejk3WXhTZWlVX3VScVl0cEo2TFdXdTNFdWkwWVQ5bGJDZmVGOFNraktNOUtDeUppa21uZlNfRGo5ZVo0Z3NB0gG7AUFVX3lxTE9pVmU1TWlEdHZ0MFAzT0pYR0ZoYlFUN1RZdV9HbGhfbFJpY295OWp3OXQtdFJkNnNIV0dQbWd2c055NlU5enA0dDZoWjUzdmNWRjdCNEpZVGQ2ckFMMzV1OTJpbWc2SmR4bFgtbkJ5X2dOMmFSQmI5dHNKbkx6OTdZeFNlaVVfdVJxWXRwSjZMV1d1M0V1aTBZVDlsYkNmZUY4U2tqS005S0N5SmlrbW5mU19EajllWjRnc0E?oc=5",
+    "https://news.google.com/rss/articles/CBMivgFBVV95cUxQd21aOUhZbmRndnAzNldzRmRCYXdpcUZSSzJzc1hscWRObkdXaExCbnZxVlVLcWtUU3dyeFA2eE80N0dFR2Z3ZDNXUktLd2JtTGplWDJaOTNISlU2YmxGSUFnYmJsN3l1aXQ0THVrYlVoRGxpU09aRk4xdDJjTWxNVGZEbmZJTXQwQVBzSUZvZGxSbGxGZmF5Z1oxdFpXZmZYZnU5MTlDX1FiaUxST2pRV3B3QnRPYzgwUFBpOHhB0gHDAUFVX3lxTE1PMVlQNUpOM1JvUXVtdXBaemk3WGw0RVlrSlA3ZnRobG1Ca2xBVFFMd0Z3SzhDTnpISmlPQW9UUUo2ZWpOamNzd3U0RE9BRXZ3THUxSkNncWJVSVdfdWZjSERJZWR3Z1AtVDIyWHFZWGM1LTdLdmI3cFdMTFE3M0ZOcVRVWDVPbHdYbkhac1JvaV9kWDltWnFjZWFvMTFEbnp5Zzc4Qk91cWVTR0UwbktNRjlPbEJwdjhPTGlFUUNRZEpObw?oc=5",
+    "https://news.google.com/rss/articles/CBMivwFBVV95cUxQMWMybGVKNnhCMXl2cVJzekh0NVVJVTNBeVNLWUVlYmhHZEFEb1Bqak8xUDFkazRaTURKVXYxREI2Vm55aGFEdVJHcS1aQ21adldHUDBJbXEzenFLQTA5SjJxaHBXZndIVHp3X1ZzR0FFV051U1JuRmRkVVA3ajV3bkN3WWlSRnFRODFpX3N3UnNITmhIbXNLcU03NGdaOExrSkxvaGd1UGkyc01SSkx3Q3Nja0F5VzdkRnFpWWhYaw?oc=5",
+    "https://www.fxstreet.com/news/oil-hormuz-supply-recovery-eases-risk-premium-bny-202608271133",
+    "https://www.fxstreet.com/news/wti-price-forecast-bears-have-the-upper-hand-below-8210-8215-confluence-hurdle-202608270859"
+   ],
+   "pending_items": [],
+   "last_regime": "Ranging",
+   "last_fired_at": "2026-08-27T11:54:55.322966",
+   "last_analyzed_at": "2026-08-27T11:54:55.322966"
+  },
+  "XAU": {
+   "news_links": [
+    "https://investinglive.com/commodities/gold-hopes-to-keep-early-week-momentum-ahead-of-warsh-showdown/",
+    "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQdXJHU3hjZ2NJTUpEUEdBazlzWk0zc3RQaU9RTHFHZkhHZmdscUIwR1prMUphZkY4S2hUMTdDVTBJOFhQRDh5dmU2eW5vNWxCQkZMVFpwaHRETDlEbDlCODNxamtQeTNDc3NmNVhQQ2J6Qk9JQlh2MjNoei11YkN1TmlXaXRRa25wd3ZQVU1jRGtNOEoxdzBwSS1uMW16UVNGNm1GQVZ0eURsMXhsOFcycDQ0c1FEdWNvSExXWVdMeHAzeDBrRHRONTZaY09pOXMydnNfLXZtY3lrZ9IB3wFBVV95cUxNd0pMazd4S0tUS0kwR3k0R1FySkNZc2lrZUZHVjllVm52Z2RsRkt4TzViZ1pYUXc4NlpWeWVidjZZdEJBcjhzSU1xTmZjVGoxT25SOGU1NmNuaHp2UU9GNE5BczJKeUlMV01YVkRRWnBiRERZXzNHZllNMy13MVE1SUxKWGZQXzdPSnRIRFgxTC1rSVFrdGZHX2tKanZtVUF0NHVXR055ZHRWWjZnX3NnZkxRSXFnMnFWM0s1MGg5dUxSRWhOSDMxX1pZbEZmR1ZPWkZoaVhENTgtOTB2V3pv?oc=5",
+    "https://news.google.com/rss/articles/CBMi4wFBVV95cUxNakpwaDhtcHNKMkh4Y3ZiYVdhSlk4TlJXeTZGSm5qb0Nuc21pWUpQN2ZXNVVBZ2VBTVEwWkxUZDdNMDJid3o2NDYzdHJ6RnVuS1dBNXMyZ1QxT0RkVjFiZFpxN3dPOEJRQUVWc0xWWVlOU0Y4VFU2SXFPUUVvaXd2Y3dNcnM4eFFpQU84YVJnblJuRFctRExhV25kQTdGRENwMFhPbUREalpGZEthRkdNRUJUQ1IzMGQ1MElvZ1BWb1ppVVU5N2FUOG5XNTVUVXFNNVBTVmFyd2ExYWpuX2RYbzZUdw?oc=5",
+    "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1mdDFFWGFRandlUU56elpWNTBXQk5Zc3BTaENfZXNKX09qazhWaWRXdEVlZDVQWVFLMW5lRHdobDliZDRvbzJDRlJ1TVpPZHdfd3h0TGx0M20?oc=5",
+    "https://news.google.com/rss/articles/CBMib0FVX3lxTE1hYm11WDZQRWttSmZnYWgtYVVUZUZ5SjZiajQyRGt4WjBRQUptS0ZJOERZWUkwTjFfazBJdmRqUzdmSkx6aWt2MVg5ZXpiSkJvc05VLUNWMEF5TmlWUDBrdmdET2FEOV9iMEpTVXYyRQ?oc=5",
+    "https://news.google.com/rss/articles/CBMickFVX3lxTE9ITFlFNENoZjI3cWJRVUpHZ29JQkE2ekxSX05MQk1IMlFtbGhNU21zeEVjeWtSVVVJOXdOVkdsTXIzUzVrdTVtd3NOM0FJb1BHbllFQ2c0TFBYZFJxYkNhWDRlYVNvbnZza0tJSDlWX3VOdw?oc=5",
+    "https://news.google.com/rss/articles/CBMifEFVX3lxTE1NU2JKSURteHVPdHZhODJsYzFrcHFfRkJkOVFrWjJTMnRBOG0wcWd1aU90dWl4TnRFaGdrSVktZlg1Y3pRaHNlWUpyREV1Si10SjlrXzZQWTJ4Z2w3Q0NZejlRSWdLWnpsUzZtYjNQZ0VWSk1fUjdlRUJjbW4?oc=5",
+    "https://news.google.com/rss/articles/CBMipAFBVV95cUxQdG1GYmFZLXVOR3JlSnlUM0dHaExMVm1OY3FEb052Nk1mZGhfaVhFU0lIZUtYR2xIeGxNSzRla3B6MHMtUHY2SGQ0blhsamUxZHc5dEQ3OVNIeGotVEpoUVJtcVBjU2s3N3d2ZTE5eW9WTVQ4bkJ1Rk1UQVNpOFlQWWFmTlJJVHFkdlpZTlh1ODFyVWhGN3RsaDZ0cjIzVk80N1YxOA?oc=5",
+    "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNVXloNFNZTHVuREhhVC1lMm5ZaHJtS2FpeTE3UGs2VjZlcVF2bVJmWkxOeUdGenJ2U3VQbmx6TE5fZWhVZVV4WVVVaXJiR3daY05CWl9DRHptbzFBOU11Y1JaOENBMF9fWXZNSUJ4OU91REo0OEp2Z2lwRnNyQi1TWk1xY00yY3VNRWRqS2l4ZEhhR3R6a2JmcnRILVVSbGJZbmdIdDR3dzdKUQ?oc=5",
+    "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQUWVTbGc0N2NuVFdxZm5GblhLRlBXZjgwRnhnTXphMDF4ckhOdVRrbTMxdXZrTFQwX2dXT2pFQkltQ2tDRS0zenowczQ0cjBraDVOcElQWnRoT0hLaV90YmtyRTE2emVuckRDVmt5RXl0c0RaU2tHWlhGWDJJQTJfeHUxbkhtZ21hUDhhVjhCX3RISElfdDlab2VpUHhaSEZxR3VuOGpSZDJTc0HSAbABQVVfeXFMUE5uVnJuTGF3ZjJhNzBCMjdKZ1RDbmVtWERiREFvYk1SV3FiUVphbXVEMTc1V0xDTWZGRUdOZENub0F2bzREUWJ2b0FraVBvUFVVckh3eWhiNnUtMGlXY2Y3dzR3TV9DSDlWX0xsbDNINGtDVGRUQy1IejRyU1piRkNmR3p6UFRXMkZ6RWRoOEpWVVFvZjl6ZUJ3SGYxNEF5dnRXRHI2Y21VTnNQZnZsdTc?oc=5",
+    "https://news.google.com/rss/articles/CBMirAFBVV95cUxQU25nTEtDVzd1ODFFQnpvZkFIbU56dkt6ZlhWWHRVb01JLUgycGk4RTFMNmpkTzVqcmMwbVFsOFBneXJZOHAxSXViQWw5Y0hMOXNISEhHMnpKM3ZrUWppUDBNTDVOQkJ0b0ZBbVZNOWYwWFpiaDBhUDdGYl83eDl2UjQ4T3hNcHZwMTcyRzdxeEFSWGRtRGVCX2gydXFVcFNfZEhQdVlsWk1YcW1Y?oc=5",
+    "https://news.google.com/rss/articles/CBMirgFBVV95cUxNbjhScUdBa1RabHBQWDc0SnVDT0NlOHhQdXlsNEU3cGtTNGkxV2RreUZLMHV4YmUtVkNReTd6dEcyeHY1cWlrUF9JZGx1U2pnR2llb294TmIySGF0emJSZlNyaEZSLTdEMDR4U25JVGRxT1k0dkEweVdLUWhPTzV4OUsxYkw4ZDEzTVpWRmNlaVVTWHA0RzV2QXp6bGFwT29FcTVsN1FqVTlzRGYwOWc?oc=5",
+    "https://news.google.com/rss/articles/CBMirwFBVV95cUxPSmFlOHBmMEtZOGYweHpJOUFsNjVRUFpZY3gzbWphNjNXdlNWVTZ1ZnVKbjh5OWlFQ3JSdGRtSkYwcV94WWdUNXAwbWJLSmgybDN2bVNfb2ZMc0lEa2ZLckxDLWJpSFZzendIeURud0FJci1jN0VncW1zeEpSUzhtek84TEJoaFBkaGs4VXlQZ1VSNnl0YzJWTVl4Y2o0dEFUUmVZNlhIa3NiMTV6OEJF0gGvAUFVX3lxTE9KYWU4cGYwS1k4ZjB4ekk5QWw2NVFQWlljeDNtamE2M1d2U1ZVNnVmdUpuOHk5aUVDclJ0ZG1KRjBxX3hZZ1Q1cDBtYktKaDJsM3ZtU19vZkxzSURrZktyTEMtYmlIVnN6d0h5RG53QUlyLWM3RWdxbXN4SlJTOG16TzhMQmhoUGRoazhVeVBnVVI2eXRjMlZNWXhjajR0QVRSZVk2WEhrc2IxNXo4QkU?oc=5",
+    "https://news.google.com/rss/articles/CBMitAFBVV95cUxQXzhNMlFYYTc0OXp4d0M1ZWtNd3kzLXFlbXNnNWNwTDVSNmNmVmtTcGJsSW80WlkzRXRHOGFlekV3WUVvYXpJWTRPeFFOYWRhUWJfMDZRRVVObDczb0UwaU1fbFpIc2hSeUxBV01QMlBuSlk3UkNERnRhUzlZUktuZFozbWJnSmRZanVPaFlBbXFIeUs4eS12SzBIeG9KcWVOYWZHWl8wdWZ3R2t4QU9WYWF2ZzY?oc=5",
+    "https://news.google.com/rss/articles/CBMitwFBVV95cUxQclV4ZFNObl9NaFNrOXFYNEtBV1VVWEk4UW5pdUJoeS1pal9Wb1NwNmx5cEozOE9WQWtoaHBhWlZLaGt5Q2t0MWJheU43a3kyMGJPc21yLVowVWlsamRkOVB2c2dHTkRiTHdObGdhWTQ2cnZXR2tRa3F3RGtjUjNZXzlxV3E0ZGpURGU5ZE5NZmlIeUpTQno3QW5KTVFubE1lWXBYTU1YbWdoQUo2b1JCZWFBV3MxZW8?oc=5",
+    "https://news.google.com/rss/articles/CBMivAFBVV95cUxQeWZfOEJHbEdiN0VzcHVReHhTZnlIZy1xUHFwNkdwbHl4MjJ5ZzN4bEp4eGQ5cElOM3JWWUI5MlhtbzFHdjdldU5FeEJ5a0hLUkhEcVVyVGlVTDAybjVkVmpEMFB2MWU5NUtDVVhYR2ExVEtTR1dMNU9NSWliX2hDX0lRN2lZMFlwOUpqaVlLalJSZ2ExdE1YWEszV05yMzJyemxrMGc4VWZoWmMxY1BscG1JbFhVbDlHS0p3MQ?oc=5",
+    "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNdUItZko4OE84N2U3S0RSTmozY2JCZ1gwTWVsWU9xdWd4ZG5RaHhsRGxFVGhDRm5PSzlPWFVFNkV6VUtHUE9MOGJZVEZtSmRHeFBmWnlLTFUya3ZMckRVMFVsUGpkcHdqSUZoUHBFZnZXd19GSDJXMTgwR2xycTY5OTZCVXNNXzB0d3M2SXV4NllpQUpESUZpOXlXdXFWNEtfZU92VUE3S2ZSb2hkR0lieERadmNvc05HQmFISjFxZnA?oc=5",
+    "https://www.fxstreet.com/news/gold-eases-as-traders-await-clearer-signals-on-the-fed-interest-rate-path-202608271115",
+    "https://www.fxstreet.com/news/gold-scales-higher-on-softer-us-yields-as-traders-await-fed-chair-warshs-speech-202608270356",
+    "https://www.fxstreet.com/news/silver-price-today-silver-rises-according-to-fxstreet-data-202608270935"
+   ],
+   "pending_items": [
+    {
+     "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE1hYm11WDZQRWttSmZnYWgtYVVUZUZ5SjZiajQyRGt4WjBRQUptS0ZJOERZWUkwTjFfazBJdmRqUzdmSkx6aWt2MVg5ZXpiSkJvc05VLUNWMEF5TmlWUDBrdmdET2FEOV9iMEpTVXYyRQ?oc=5",
+     "title": "Gold Futures Flat at ₹1,59,650 on MCX Amid Muted Spot Demand - HDFC Sky",
+     "impact": null,
+     "reliability": 0.85,
+     "category": "Commodities"
+    }
+   ],
+   "last_regime": "Trending",
+   "last_fired_at": "2026-08-27T11:54:55.322966",
+   "last_analyzed_at": "2026-08-27T11:54:55.322966"
+  },
+  "CAD": {
+   "news_links": [
+    "https://www.bancaditalia.it/media/agenda/2027-03-22_conference-on-diversity-equity-and-inclusion-in-economics-finance-and-central-banking/?com.dotmarketing.htmlpage.language=1",
+    "https://www.bankofcanada.ca/2026/10/interest-rate-announcement-and-monetary-policy-report-october-28-2026/",
+    "https://www.bankofcanada.ca/2026/10/release-business-outlook-survey-and-canadian-survey-of-consumer-expectations-october-19-2026/",
+    "https://www.bankofcanada.ca/2026/11/publication-summary-of-deliberations-november-10-2026/",
+    "https://www.bankofcanada.ca/2026/11/release-market-participants-survey-november-9-2026/",
+    "https://www.bankofcanada.ca/2026/11/remembrance-day-3/",
+    "https://www.bankofcanada.ca/2026/12/boxing-day-2/",
+    "https://www.bankofcanada.ca/2026/12/christmas-day-2/",
+    "https://www.bankofcanada.ca/2026/12/interest-rate-announcement-december-9-2026/",
+    "https://www.bankofcanada.ca/2026/12/publication-summary-of-deliberations-december-23-2026/"
+   ],
+   "pending_items": [],
+   "last_regime": "Trending",
+   "last_fired_at": "2026-08-19T10:04:58.010470",
+   "last_analyzed_at": "2026-08-19T10:04:58.010470"
+  },
+  "JPY": {
+   "news_links": [
+    "https://investinglive.com/news/japan-june-machine-orders-16-9-y-y-expected-10-8/",
+    "https://www.fxstreet.com/news/euro-steadies-against-japanese-yen-as-ecb-boj-rate-hike-bets-collide-202608190948",
+    "https://www.fxstreet.com/news/japanese-yen-bearish-bias-within-tight-range-against-us-dollar-uob-202608180947",
+    "https://www.fxstreet.com/news/japanese-yen-bojs-hawkish-pivot-reshapes-outlook-against-us-dollar-standard-chartered-202608190849",
+    "https://www.fxstreet.com/news/japanese-yen-hits-drift-closer-to-the-key-16000-level-as-risk-appetite-fades-202608180715",
+    "https://www.fxstreet.com/news/japanese-yen-jgb-spillover-supports-firmer-jpy-against-us-dollar-ocbc-202608190625",
+    "https://www.fxstreet.com/news/usd-jpy-price-forecast-aims-to-extend-rally-above-16000-202608181115",
+    "https://www.investing.com/news/economy-news/analysisjapan-has-few-answers-as-bond-rout-puts-fiscal-plans-at-risk-4866583",
+    "https://www.investing.com/news/economy-news/japans-10year-government-bond-yield-rises-to-threedecade-peak-4864126",
+    "https://www.investing.com/news/economy-news/selling-grips-bond-markets-from-us-to-japan-as-inflation-fiscal-worries-take-hold-4864443"
+   ],
+   "pending_items": [],
+   "last_regime": "Trending",
+   "last_fired_at": "2026-08-19T10:04:58.010470",
+   "last_analyzed_at": "2026-08-19T10:04:58.010470"
+  },
+  "AUD": {
+   "news_links": [
+    "https://news.google.com/rss/articles/CBMi0AFBVV95cUxOQ1JWc3pRZ3haWjBGc0Y4Z2N2MEF5MVZEM18wYWpLRklTOERGQjJxZkk4b054aDR3b0IyTXA0Sng2QnZXemotS0VEeV8zYVhydExjNGlUSWVyUUtDcHNiU3JGRElBRGd4VHBfbk94YUZMWlVIMHZhZmhUamVSWlJITzViTVpTbUtuNW1JN1NDa1I1eEVkRC1rT1c3czlZSW1VNldoS2UtcjRaM0Y5M3VESmhvRGZkY0pyWU5iMDdaR183TVB2d1VkQ0ZWM3EyRzJZ?oc=5",
+    "https://news.google.com/rss/articles/CBMi0gFBVV95cUxQX3NIcUl2R1RhbDBoVmVNWkxpVHJNYk1KN1JFVVV4TFFFdXlHMDEtcUNtZzhRY21mTlNhNzNFUzdsakVGRE1yU2tpbTZKWjREQ2dSMVRQejJBRGtUdl9sSTZfSlpxb2hYc19SeUdrNU9UYm1kRmg3NzNQZU95WDBwRjdfd0oxblBpa2s4MC1Ockh5ZWZCdUhWMnhWa0hXV1BDb0hzVzE1cWc3ck5WOVBtVVpHNDV6RW8wdEZNTVdDdUlZRkVXOWo3MnI3YmpHemRFNlE?oc=5",
+    "https://news.google.com/rss/articles/CBMia0FVX3lxTE5UaWc5MkYwYlFUSEJoQ1J1X3djbXpheFE4Yzl2aUQtQjNjTmRFeXBuVEQwRkJZLXVQdDBKeEJleGlGUXNwbDY1MExTeHpfUzRHRWRZN2FiRkVlVEdwemZlN3ZpX2ljb0lRVUJz?oc=5",
+    "https://news.google.com/rss/articles/CBMilAFBVV95cUxQOVpId3F0dWY4WGxHcTJ0UUxTNGhNX0ZDeFBPUVJLN2c5RG90T0JSMkktSVFGcVJHUzdXbWZ4TlBhUHFZWU54dUZtTGQxNVBOeTRUMnBjZ191bnJSaFZlQjBya2dGdzI1TGhiSXllS0F3Z2pVc2NSNF9BekVWWVdYTXZieE5ULTREcUJiUzE1cVVpM0RG?oc=5",
+    "https://news.google.com/rss/articles/CBMimgFBVV95cUxOVlZDaVNVcGJrbkxzS19wenFNNnFWX2Q0bXphTTVleHh1Wkw5cFE3bVl0bDNBbkVwY0tTTmZqTHNBejVYYlBZQVg5Q0tYcGxfMGtTdFZRVkVaclNoMzRGWGlaY09mX1JaaWtocVJpLXRsd1BObXBocEdsY19WdWNCUFNYc053cDREVVJZYTZvdDRyTzZIWTcxeE1R?oc=5",
+    "https://news.google.com/rss/articles/CBMitgFBVV95cUxPR21oVjNnWEJXNm52MG5tcG9OeXJZTEd6Sk52em5mS1V5LWc4Mm1WUjdTWWxpTXdzUm41RWRQbExTRjZUdVowOXFfRmxkdllHcXhnM0licVRaRV84MTFvYmlibXp3M1JmQ3JfdUM5VVp2T21tdFBxdms3WTcxemp4X3Q3S0htWENKd21ya3FtdHFNbThILWtQZXBTdlNfTkNkVkZmUHB2NEN0d1NPUW9KMnRZWGtYZw?oc=5",
+    "https://news.google.com/rss/articles/CBMiugFBVV95cUxORm5jM29oVDZxVjVfV3VwczZEblg0UjVWdk1WZlM3YThlX0lsdVdERHFLT2lvWVFid3Jkell2UkJTUnFHM1htZnlXRUpqcnJfQUctM3N0djl1eGo4d2g4Um1DOW5XRllmTURpOHRoUlJ1TEV1aDRoRFMzNHZFeHZNMnVfT1QtdHl4TG90VXRraUNjdDhYTDRSc1g4YWNGLVRQWkJMQjNPN0gyS2xocUpIV2duc2hHVUhBWWc?oc=5",
+    "https://news.google.com/rss/articles/CBMiugFBVV95cUxQQUxMM3ZzM0ktUUIwMzhHVzdISWRndVR4WjNjUHEyMGxod0pTRTFENzBtZjVDX2RmYnBjNHdWWXR3Z2pqclRiWV95Q0FTX2RYM2FULVgwUjhCYjJGLUpoVjFlUnVRTFI1ZGlmYV9NMlBSMDBFa0JGOHVaN1hzRk5iWldoeU5oelZrUE5TbWx0Z2JsYXFRamsxM2ZJa21NTURrMk40OVV6UnoxRWZJRmNQYzUxa05KMUhOZUE?oc=5",
+    "https://www.fxstreet.com/news/aud-usd-price-forecast-rising-20-day-ema-supports-near-term-bullish-bias-202608190653",
+    "https://www.fxstreet.com/news/australian-dollar-rba-seen-sidelined-on-softer-wages-bbh-202608190949"
+   ],
+   "pending_items": [
+    {
+     "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxOQ1JWc3pRZ3haWjBGc0Y4Z2N2MEF5MVZEM18wYWpLRklTOERGQjJxZkk4b054aDR3b0IyTXA0Sng2QnZXemotS0VEeV8zYVhydExjNGlUSWVyUUtDcHNiU3JGRElBRGd4VHBfbk94YUZMWlVIMHZhZmhUamVSWlJITzViTVpTbUtuNW1JN1NDa1I1eEVkRC1rT1c3czlZSW1VNldoS2UtcjRaM0Y5M3VESmhvRGZkY0pyWU5iMDdaR183TVB2d1VkQ0ZWM3EyRzJZ?oc=5",
+     "title": "RBA warns of more rate pain if inflation risks ‘crystallise’ - The Nightly",
+     "impact": null,
+     "reliability": 0.75,
+     "category": "Central Bank Commentary"
+    }
+   ],
+   "last_regime": "Volatile-News",
+   "last_fired_at": "2026-08-19T10:04:58.010470",
+   "last_analyzed_at": "2026-08-19T10:04:58.010470"
+  },
+  "USD,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "EUR,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "GBP,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "JPY,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "AUD,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "CHF,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "CAD,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "NZD,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "XAU,": {
+   "news_links": [],
+   "pending_items": [],
+   "last_regime": null,
+   "last_fired_at": "2026-08-19T10:00:34.840293",
+   "last_analyzed_at": "2026-08-19T10:00:34.840293"
+  },
+  "GBP": {
+   "news_links": [
+    "https://investinglive.com/news/uk-headline-inflation-picks-up-in-july-core-prices-hold-steady/",
+    "https://www.fxstreet.com/news/british-pound-boe-outlook-steady-with-cpi-and-jobs-data-mufg-202608190749",
+    "https://www.fxstreet.com/news/british-pound-edges-up-within-range-following-hotter-uk-inflation-data-202608190631",
+    "https://www.fxstreet.com/news/british-pound-shows-limited-reaction-to-expected-increase-in-uk-headline-inflation-202608190614",
+    "https://www.fxstreet.com/news/euro-trims-gains-against-british-pound-after-uk-cpi-inflation-rises-to-29-202608190635",
+    "https://www.fxstreet.com/news/gbp-usd-price-forecast-more-upside-expected-above-13570-202608191025",
+    "https://www.fxstreet.com/news/united-kingdom-upside-risks-building-for-inflation-deutsche-bank-202608190929",
+    "https://www.investing.com/news/economy-news/bank-of-england-to-hold-rates-for-remainder-of-year-despite-inflation-risks-reuters-poll-4865665",
+    "https://www.investing.com/news/economy-news/uk-inflation-picks-up-to-29-yearonyear-in-july-4866460",
+    "https://www.investing.com/news/forex-news/sterling-today-pound-steady-after-inline-inflation-damps-boe-rate-fears-4866615"
+   ],
+   "pending_items": [
+    {
+     "link": "https://www.fxstreet.com/news/gbp-usd-price-forecast-more-upside-expected-above-13570-202608191025",
+     "title": "GBP/USD Price Forecast: More upside expected above 1.3570",
+     "impact": null,
+     "reliability": 0.8,
+     "category": null
+    }
+   ],
+   "last_regime": "Uptrend",
+   "last_fired_at": "2026-08-19T10:04:58.010470",
+   "last_analyzed_at": "2026-08-19T10:04:58.010470"
+  },
+  "CHF": {
+   "news_links": [
+    "https://news.google.com/rss/articles/CBMilwFBVV95cUxPRENPdWo0Ulh5WFBSZ21ZNEplWXhUdVF3dUdYTVAwb2Y0ZEFoN1h4a3F2d3VhaGI3X3E1NkJ4M1pWbmh4d0dBTGthQ3ZteGJWWWxEQ2l3V2NQR1duZ0xTdXJmQTVKeDBJRDVLZi1za29STUhzb1d5c3lNSllMdnJaR1hWVXUwUHBrN3l3QlRoeUYxSGQzZnZr?oc=5",
+    "https://news.google.com/rss/articles/CBMivgFBVV95cUxQYVpRVFYwcGpQNUpkNkJ5R0U5ZUxyUWptWS1HNGJiaUVoSmpDamJpU0tfUmdWdnF2QXFhTWdMZ1BrUl9hU1M3bGozUjR6elVab1dQOHZZTXBuX3h4dTZ4U2pfS1VQeHRPMURHNWZJYWJGcmx4b1F2azdlU05TZUtkc3BhTGxORTVPTVlNbVZndUp6c1RZdnJVR3hhVzhqWkpLTVlhaHE3OU5OR3htMXlFYWdMcTE2VE9hWTZmR1Rn?oc=5",
+    "https://news.google.com/rss/articles/CBMivwFBVV95cUxOSWxGeDh0dy1BVzlPR1lzZ0hpZElxZ0NMRHlZcWJkUkhuOEczOHE4MHR3ZHd4Tm52dG5CTEhnUUNUNjdwVk5ObExuZnI3VS12Sy14eVByVTdxWHhYdGF3MFR6SlFYY0tPeUlCdWJhMzdyRHdPRGswdUxIYkU3Z2NXd2I3TlNhQm1VZkozOTk2THlwMFZ0ak8wQ2RIVk8tT19mSUpwUlFtNnpIQ21KeWk1cEtmR0hhVENMbHRFV0FGYw?oc=5",
+    "https://www.fxstreet.com/news/swiss-franc-growing-role-as-funding-currency-ing-202608181003",
+    "https://www.investing.com/news/forex-news/analysisinvestors-set-sights-on-swiss-franc-for-popular-carry-trades-after-yen-intervention-4866417"
+   ],
+   "pending_items": [],
+   "last_regime": "Ranging",
+   "last_fired_at": "2026-08-19T10:04:58.010470",
+   "last_analyzed_at": "2026-08-19T10:04:58.010470"
+  },
+  "NZD": {
+   "news_links": [
+    "https://investinglive.com/news/new-zealand-q2-2026-producer-price-index-rises/",
+    "https://www.fxstreet.com/news/nzd-usd-price-forecast-kiwi-fails-to-find-follow-through-above-05900-202608181146"
+   ],
+   "pending_items": [],
+   "last_regime": "Ranging",
+   "last_fired_at": "2026-08-19T10:04:58.010470",
+   "last_analyzed_at": "2026-08-19T10:04:58.010470"
+  }
+ },
+ "seen_actual_keys": [
+  "CPI y/y|2026-08-19 09:30:00|2.9",
+  "French Flash Manufacturing PMI|2026-08-21 10:45:00|51.5",
+  "French Flash Services PMI|2026-08-21 10:45:00|48.4",
+  "German Flash Manufacturing PMI|2026-08-21 11:00:00|54.1",
+  "German Flash Services PMI|2026-08-21 11:00:00|48.5",
+  "French Flash Manufacturing PMI|2026-08-21 11:15:00|51.5",
+  "French Flash Services PMI|2026-08-21 11:15:00|48.4",
+  "German Flash Manufacturing PMI|2026-08-21 11:30:00|54.1",
+  "German Flash Services PMI|2026-08-21 11:30:00|48.5"
+ ]
+}

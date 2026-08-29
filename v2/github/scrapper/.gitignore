@@ -1,0 +1,14 @@
+errors.csv
+forex_factory_catalog.csv
+forex_factory_cache.csv
+forex_factory_cache*.csv
+debug/
+logs_file
+chromedriver.exe
+venv
+.venv/
+.pytest_cache/
+__pycache__/
+# Python cache files
+*.pyc
+*.pyo

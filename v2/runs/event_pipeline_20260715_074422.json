@@ -1,0 +1,1037 @@
+{
+  "started_at": "2026-07-15T07:44:22.853915+00:00",
+  "finished_at": null,
+  "requested_source_mode": "db",
+  "effective_source_mode": "db",
+  "live_fetch_result": null,
+  "raw_event_persistence": null,
+  "db_loaded_count": 50,
+  "db_query_filters": {
+    "impact_filter": [
+      "High"
+    ],
+    "currency_filter": [
+      "USD",
+      "CAD",
+      "EUR",
+      "GBP"
+    ],
+    "released_only": true,
+    "require_forecast": false,
+    "lookback_days": null,
+    "cutoff_date": null,
+    "candidate_limit": 50
+  },
+  "prepared_events": [
+    {
+      "origin": "db",
+      "source_record_id": 81012,
+      "route": {
+        "event_currency": "CAD",
+        "ticker": "USDCAD=X",
+        "market_context_currency": "CAD",
+        "alignment": "inverse",
+        "note": "CAD strength implies USDCAD downside."
+      },
+      "event_input": {
+        "title": "Employment Change",
+        "currency": "CAD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-04T11:30:00",
+        "actual": -32600.0,
+        "forecast": 10400.0,
+        "previous": 1100.0,
+        "raw_actual_str": "-32.6K",
+        "raw_forecast_str": "10.4K",
+        "raw_previous_str": "1.1K",
+        "detail_text": "Source: Statistics Canada (latest release) | Measures: Change in the number of employed people during the previous month; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, about 8 days after the month ends; | Next Release: May 9, 2025 | FF Notes: This is vital economic data released shortly after the month ends. The combination of importance and earliness makes for hefty market impacts; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81004,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Unemployment Rate",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 4.2,
+        "forecast": 4.1,
+        "previous": 4.1,
+        "raw_actual_str": "4.2%",
+        "raw_forecast_str": "4.1%",
+        "raw_previous_str": "4.1%",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Percentage of the total work force that is unemployed and actively seeking employment during the previous month; | Usual Effect: 'Actual' less than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Friday after the month ends; | Next Release: May 2, 2025 | Why Traders Care: Although it's generally viewed as a lagging indicator, the number of unemployed people is an important signal of overall economic health because consumer spending is highly correlated with labor-market conditions. Unemployment is also a major consideration for those steering the country's monetary policy; | Also Called: Jobless Rate;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81003,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Average Hourly Earnings m/m",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Unknown",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 0.3,
+        "forecast": 0.3,
+        "previous": 0.2,
+        "raw_actual_str": "0.3%",
+        "raw_forecast_str": "0.3%",
+        "raw_previous_str": "0.2%",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Change in the price businesses pay for labor, excluding the farming industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Friday after the month ends; | Next Release: May 2, 2025 | FF Notes: This is the earliest data related to labor inflation. Source changed series calculation formula as of Feb 2010; | Why Traders Care: It's a leading indicator of consumer inflation - when businesses pay more for labor the higher costs are usually passed on to the consumer;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81002,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Non-Farm Employment Change",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Non-Farm Payrolls",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 228000.0,
+        "forecast": 137000.0,
+        "previous": 117000.0,
+        "raw_actual_str": "228K",
+        "raw_forecast_str": "137K",
+        "raw_previous_str": "117K",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Change in the number of employed people during the previous month, excluding the farming industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Friday after the month ends; | Next Release: May 2, 2025 | FF Notes: This is vital economic data released shortly after the month ends. The combination of importance and earliness makes for hefty market impacts; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity; | Also Called: Non-Farm Payrolls, NFP, Employment Change;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81001,
+      "route": {
+        "event_currency": "CAD",
+        "ticker": "USDCAD=X",
+        "market_context_currency": "CAD",
+        "alignment": "inverse",
+        "note": "CAD strength implies USDCAD downside."
+      },
+      "event_input": {
+        "title": "Unemployment Rate",
+        "currency": "CAD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 6.7,
+        "forecast": 6.7,
+        "previous": 6.6,
+        "raw_actual_str": "6.7%",
+        "raw_forecast_str": "6.7%",
+        "raw_previous_str": "6.6%",
+        "detail_text": "Source: Statistics Canada (latest release) | Measures: Percentage of the total work force that is unemployed and actively seeking employment during the previous month; | Usual Effect: 'Actual' less than 'Forecast' is good for currency; | Frequency: Released monthly, about 8 days after the month ends; | Next Release: May 9, 2025 | Why Traders Care: Although it's generally viewed as a lagging indicator, the number of unemployed people is an important signal of overall economic health because consumer spending is highly correlated with labor-market conditions; | Also Called: Jobless Rate;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80996,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "ISM Services PMI",
+        "currency": "USD",
+        "impact": "High",
+        "category": "PMI",
+        "event_date": "2025-04-03T13:00:00",
+        "actual": 50.8,
+        "forecast": 53.0,
+        "previous": 53.5,
+        "raw_actual_str": "50.8",
+        "raw_forecast_str": "53.0",
+        "raw_previous_str": "53.5",
+        "detail_text": "Source: Institute for Supply Management (latest release) | Measures: Level of a diffusion index based on surveyed purchasing managers, excluding the manufacturing industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, on the third business day after the month ends; | Next Release: May 5, 2025 | FF Notes: Above 50.0 indicates industry expansion, below indicates contraction. Source changed series from unadjusted to seasonally adjusted as of January 2001. Source changed series calculation formula as of Feb 2008; | Why Traders Care: It's a leading indicator of economic health - businesses react quickly to market conditions, and their purchasing managers hold perhaps the most current and relevant insight into the company's view of the economy; | Derived Via: Survey of about 300 purchasing managers which asks respondents to rate the relative level of business conditions including employment, production, new orders, prices, supplier deliveries, and inventories; | Also Called: Non-Manufacturing PMI, Non-Manufacturing ISM Report On Business; | Acro Expand: The Institute for Supply Management (ISM), Purchasing Managers' Index (PMI);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80977,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Unemployment Claims",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-02T19:30:00",
+        "actual": 219000.0,
+        "forecast": 225000.0,
+        "previous": 225000.0,
+        "raw_actual_str": "219K",
+        "raw_forecast_str": "225K",
+        "raw_previous_str": "225K",
+        "detail_text": "Source: Department of Labor (latest release) | Measures: The number of individuals who filed for unemployment insurance for the first time during the past week; | Usual Effect: 'Actual' less than 'Forecast' is good for currency; | Frequency: Released weekly, usually on the first Thursday after the week ends; | Next Release: Apr 10, 2025 | FF Notes: This is the nation's earliest economic data. The market impact fluctuates from week to week - there tends to be more focus on the release when traders need to diagnose recent developments, or when the reading is at extremes; | Why Traders Care: Although it's generally viewed as a lagging indicator, the number of unemployed people is an important signal of overall economic health because consumer spending is highly correlated with labor-market conditions. Unemployment is also a major consideration for those steering the country's monetary policy; | Also Called: Jobless Claims, Initial Claims;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80970,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "ADP Non-Farm Employment Change",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Non-Farm Payrolls",
+        "event_date": "2025-04-02T11:15:00",
+        "actual": 155000.0,
+        "forecast": 118000.0,
+        "previous": 84000.0,
+        "raw_actual_str": "155K",
+        "raw_forecast_str": "118K",
+        "raw_previous_str": "84K",
+        "detail_text": "Source: Automatic Data Processing, Inc. (latest release) | Measures: Estimated change in the number of employed people during the previous month, excluding the farming industry and government; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Wednesday after the month ends; | Next Release: Apr 30, 2025 | FF Notes: This data provides an early look at employment growth, usually 2 days ahead of the government-released employment data that it's designed to mimic. Source changed series calculation formula in Feb 2007, Dec 2008, and Nov 2012, to better align with government data; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity; | Derived Via: ADP analyzes payroll data from more than 25 million workers to derive employment growth estimations; | Acro Expand: Automatic Data Processing, Inc. (ADP);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80958,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "ISM Manufacturing PMI",
+        "currency": "USD",
+        "impact": "High",
+        "category": "PMI",
+        "event_date": "2025-04-01T13:00:00",
+        "actual": 49.0,
+        "forecast": 49.5,
+        "previous": 50.3,
+        "raw_actual_str": "49.0",
+        "raw_forecast_str": "49.5",
+        "raw_previous_str": "50.3",
+        "detail_text": "Source: Institute for Supply Management (latest release) | Measures: Level of a diffusion index based on surveyed purchasing managers in the manufacturing industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, on the first business day after the month ends; | Next Release: May 1, 2025 | FF Notes: Above 50.0 indicates industry expansion, below indicates contraction; | Why Traders Care: It's a leading indicator of economic health - businesses react quickly to market conditions, and their purchasing managers hold perhaps the most current and relevant insight into the company's view of the economy; | Derived Via: Survey of about 300 purchasing managers which asks respondents to rate the relative level of business conditions including employment, production, new orders, prices, supplier deliveries, and inventories; | Also Called: Manufacturing ISM Report On Business; | Acro Expand: The Institute for Supply Management (ISM), Purchasing Managers' Index (PMI);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80927,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "JOLTS Job Openings",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Unknown",
+        "event_date": "2025-03-31T19:30:00",
+        "actual": 7570000.0,
+        "forecast": 7690000.0,
+        "previous": 7760000.0,
+        "raw_actual_str": "7.57M",
+        "raw_forecast_str": "7.69M",
+        "raw_previous_str": "7.76M",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Number of job openings during the reported month, excluding the farming industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, about 35 days after the month ends; | Next Release: Apr 29, 2025 | FF Notes: It's released late, but can impact the market because job openings are a leading indicator of overall employment; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity; | Acro Expand: Job Openings and Labor Turnover Survey (JOLTS);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      }
+    }
+  ],
+  "enriched_events": [
+    {
+      "origin": "db",
+      "source_record_id": 81012,
+      "route": {
+        "event_currency": "CAD",
+        "ticker": "USDCAD=X",
+        "market_context_currency": "CAD",
+        "alignment": "inverse",
+        "note": "CAD strength implies USDCAD downside."
+      },
+      "event_input": {
+        "title": "Employment Change",
+        "currency": "CAD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-04T11:30:00",
+        "actual": -32600.0,
+        "forecast": 10400.0,
+        "previous": 1100.0,
+        "raw_actual_str": "-32.6K",
+        "raw_forecast_str": "10.4K",
+        "raw_previous_str": "1.1K",
+        "detail_text": "Source: Statistics Canada (latest release) | Measures: Change in the number of employed people during the previous month; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, about 8 days after the month ends; | Next Release: May 9, 2025 | FF Notes: This is vital economic data released shortly after the month ends. The combination of importance and earliness makes for hefty market impacts; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "USDCAD=X",
+        "event_title": "Employment Change",
+        "event_category": "Employment",
+        "actual_value": -32600.0,
+        "forecast_value": 10400.0,
+        "previous_value": 1100.0,
+        "historical_std": 45865.342211321346,
+        "historical_volatility": 0.039516992711204534,
+        "atr_current": 0.009253342946370443,
+        "atr_baseline": 0.006062848227364677,
+        "implied_volatility": 16.329999923706055,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.3125090240751613,
+        "calculated_volatility": 2.263118471662004
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81004,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Unemployment Rate",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 4.2,
+        "forecast": 4.1,
+        "previous": 4.1,
+        "raw_actual_str": "4.2%",
+        "raw_forecast_str": "4.1%",
+        "raw_previous_str": "4.1%",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Percentage of the total work force that is unemployed and actively seeking employment during the previous month; | Usual Effect: 'Actual' less than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Friday after the month ends; | Next Release: May 2, 2025 | Why Traders Care: Although it's generally viewed as a lagging indicator, the number of unemployed people is an important signal of overall economic health because consumer spending is highly correlated with labor-market conditions. Unemployment is also a major consideration for those steering the country's monetary policy; | Also Called: Jobless Rate;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "Unemployment Rate",
+        "event_category": "Employment",
+        "actual_value": 4.2,
+        "forecast_value": 4.1,
+        "previous_value": 4.1,
+        "historical_std": 0.1580833266484838,
+        "historical_volatility": 0.0450935575991122,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.34000015258789,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.21085926036623684,
+        "calculated_volatility": 2.0545261935197816
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81003,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Average Hourly Earnings m/m",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Unknown",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 0.3,
+        "forecast": 0.3,
+        "previous": 0.2,
+        "raw_actual_str": "0.3%",
+        "raw_forecast_str": "0.3%",
+        "raw_previous_str": "0.2%",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Change in the price businesses pay for labor, excluding the farming industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Friday after the month ends; | Next Release: May 2, 2025 | FF Notes: This is the earliest data related to labor inflation. Source changed series calculation formula as of Feb 2010; | Why Traders Care: It's a leading indicator of consumer inflation - when businesses pay more for labor the higher costs are usually passed on to the consumer;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "Average Hourly Earnings m/m",
+        "event_category": "Unknown",
+        "actual_value": 0.3,
+        "forecast_value": 0.3,
+        "previous_value": 0.2,
+        "historical_std": 0.1465170496654133,
+        "historical_volatility": 0.045084032993532516,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.34000015258789,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.0,
+        "calculated_volatility": 2.0545261935197816
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81002,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Non-Farm Employment Change",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Non-Farm Payrolls",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 228000.0,
+        "forecast": 137000.0,
+        "previous": 117000.0,
+        "raw_actual_str": "228K",
+        "raw_forecast_str": "137K",
+        "raw_previous_str": "117K",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Change in the number of employed people during the previous month, excluding the farming industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Friday after the month ends; | Next Release: May 2, 2025 | FF Notes: This is vital economic data released shortly after the month ends. The combination of importance and earliness makes for hefty market impacts; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity; | Also Called: Non-Farm Payrolls, NFP, Employment Change;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "Non-Farm Employment Change",
+        "event_category": "Non-Farm Payrolls",
+        "actual_value": 228000.0,
+        "forecast_value": 137000.0,
+        "previous_value": 117000.0,
+        "historical_std": 64613.04009418975,
+        "historical_volatility": 0.04508218570839768,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.34000015258789,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.4694614785051883,
+        "calculated_volatility": 2.0545261935197816
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 81001,
+      "route": {
+        "event_currency": "CAD",
+        "ticker": "USDCAD=X",
+        "market_context_currency": "CAD",
+        "alignment": "inverse",
+        "note": "CAD strength implies USDCAD downside."
+      },
+      "event_input": {
+        "title": "Unemployment Rate",
+        "currency": "CAD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-03T19:30:00",
+        "actual": 6.7,
+        "forecast": 6.7,
+        "previous": 6.6,
+        "raw_actual_str": "6.7%",
+        "raw_forecast_str": "6.7%",
+        "raw_previous_str": "6.6%",
+        "detail_text": "Source: Statistics Canada (latest release) | Measures: Percentage of the total work force that is unemployed and actively seeking employment during the previous month; | Usual Effect: 'Actual' less than 'Forecast' is good for currency; | Frequency: Released monthly, about 8 days after the month ends; | Next Release: May 9, 2025 | Why Traders Care: Although it's generally viewed as a lagging indicator, the number of unemployed people is an important signal of overall economic health because consumer spending is highly correlated with labor-market conditions; | Also Called: Jobless Rate;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "USDCAD=X",
+        "event_title": "Unemployment Rate",
+        "event_category": "Employment",
+        "actual_value": 6.7,
+        "forecast_value": 6.7,
+        "previous_value": 6.6,
+        "historical_std": 0.09753048303966937,
+        "historical_volatility": 0.03948160315956878,
+        "atr_current": 0.009253342946370443,
+        "atr_baseline": 0.006062848227364677,
+        "implied_volatility": 16.329999923706055,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.0,
+        "calculated_volatility": 2.263118471662004
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80996,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "ISM Services PMI",
+        "currency": "USD",
+        "impact": "High",
+        "category": "PMI",
+        "event_date": "2025-04-03T13:00:00",
+        "actual": 50.8,
+        "forecast": 53.0,
+        "previous": 53.5,
+        "raw_actual_str": "50.8",
+        "raw_forecast_str": "53.0",
+        "raw_previous_str": "53.5",
+        "detail_text": "Source: Institute for Supply Management (latest release) | Measures: Level of a diffusion index based on surveyed purchasing managers, excluding the manufacturing industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, on the third business day after the month ends; | Next Release: May 5, 2025 | FF Notes: Above 50.0 indicates industry expansion, below indicates contraction. Source changed series from unadjusted to seasonally adjusted as of January 2001. Source changed series calculation formula as of Feb 2008; | Why Traders Care: It's a leading indicator of economic health - businesses react quickly to market conditions, and their purchasing managers hold perhaps the most current and relevant insight into the company's view of the economy; | Derived Via: Survey of about 300 purchasing managers which asks respondents to rate the relative level of business conditions including employment, production, new orders, prices, supplier deliveries, and inventories; | Also Called: Non-Manufacturing PMI, Non-Manufacturing ISM Report On Business; | Acro Expand: The Institute for Supply Management (ISM), Purchasing Managers' Index (PMI);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "ISM Services PMI",
+        "event_category": "PMI",
+        "actual_value": 50.8,
+        "forecast_value": 53.0,
+        "previous_value": 53.5,
+        "historical_std": 2.5628373467117425,
+        "historical_volatility": 0.04506638045809099,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.329999923706055,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.2861411920168247,
+        "calculated_volatility": 2.0545261935197816
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80977,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "Unemployment Claims",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Employment",
+        "event_date": "2025-04-02T19:30:00",
+        "actual": 219000.0,
+        "forecast": 225000.0,
+        "previous": 225000.0,
+        "raw_actual_str": "219K",
+        "raw_forecast_str": "225K",
+        "raw_previous_str": "225K",
+        "detail_text": "Source: Department of Labor (latest release) | Measures: The number of individuals who filed for unemployment insurance for the first time during the past week; | Usual Effect: 'Actual' less than 'Forecast' is good for currency; | Frequency: Released weekly, usually on the first Thursday after the week ends; | Next Release: Apr 10, 2025 | FF Notes: This is the nation's earliest economic data. The market impact fluctuates from week to week - there tends to be more focus on the release when traders need to diagnose recent developments, or when the reading is at extremes; | Why Traders Care: Although it's generally viewed as a lagging indicator, the number of unemployed people is an important signal of overall economic health because consumer spending is highly correlated with labor-market conditions. Unemployment is also a major consideration for those steering the country's monetary policy; | Also Called: Jobless Claims, Initial Claims;",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "Unemployment Claims",
+        "event_category": "Employment",
+        "actual_value": 219000.0,
+        "forecast_value": 225000.0,
+        "previous_value": 225000.0,
+        "historical_std": 12633.907504164372,
+        "historical_volatility": 0.04506976510130276,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.31999969482422,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.15830415090032618,
+        "calculated_volatility": 2.0545261935197816
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80970,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "ADP Non-Farm Employment Change",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Non-Farm Payrolls",
+        "event_date": "2025-04-02T11:15:00",
+        "actual": 155000.0,
+        "forecast": 118000.0,
+        "previous": 84000.0,
+        "raw_actual_str": "155K",
+        "raw_forecast_str": "118K",
+        "raw_previous_str": "84K",
+        "detail_text": "Source: Automatic Data Processing, Inc. (latest release) | Measures: Estimated change in the number of employed people during the previous month, excluding the farming industry and government; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, usually on the first Wednesday after the month ends; | Next Release: Apr 30, 2025 | FF Notes: This data provides an early look at employment growth, usually 2 days ahead of the government-released employment data that it's designed to mimic. Source changed series calculation formula in Feb 2007, Dec 2008, and Nov 2012, to better align with government data; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity; | Derived Via: ADP analyzes payroll data from more than 25 million workers to derive employment growth estimations; | Acro Expand: Automatic Data Processing, Inc. (ADP);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "ADP Non-Farm Employment Change",
+        "event_category": "Non-Farm Payrolls",
+        "actual_value": 155000.0,
+        "forecast_value": 118000.0,
+        "previous_value": 84000.0,
+        "historical_std": 83176.3974359214,
+        "historical_volatility": 0.04506976510130276,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.31999969482422,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.1482792440347619,
+        "calculated_volatility": 2.0545261935197816
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80958,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "ISM Manufacturing PMI",
+        "currency": "USD",
+        "impact": "High",
+        "category": "PMI",
+        "event_date": "2025-04-01T13:00:00",
+        "actual": 49.0,
+        "forecast": 49.5,
+        "previous": 50.3,
+        "raw_actual_str": "49.0",
+        "raw_forecast_str": "49.5",
+        "raw_previous_str": "50.3",
+        "detail_text": "Source: Institute for Supply Management (latest release) | Measures: Level of a diffusion index based on surveyed purchasing managers in the manufacturing industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, on the first business day after the month ends; | Next Release: May 1, 2025 | FF Notes: Above 50.0 indicates industry expansion, below indicates contraction; | Why Traders Care: It's a leading indicator of economic health - businesses react quickly to market conditions, and their purchasing managers hold perhaps the most current and relevant insight into the company's view of the economy; | Derived Via: Survey of about 300 purchasing managers which asks respondents to rate the relative level of business conditions including employment, production, new orders, prices, supplier deliveries, and inventories; | Also Called: Manufacturing ISM Report On Business; | Acro Expand: The Institute for Supply Management (ISM), Purchasing Managers' Index (PMI);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "ISM Manufacturing PMI",
+        "event_category": "PMI",
+        "actual_value": 49.0,
+        "forecast_value": 49.5,
+        "previous_value": 50.3,
+        "historical_std": 1.1285919576017207,
+        "historical_volatility": 0.04506976510130276,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.34000015258789,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.14767663861510807,
+        "calculated_volatility": 2.0545261935197816
+      }
+    },
+    {
+      "origin": "db",
+      "source_record_id": 80927,
+      "route": {
+        "event_currency": "USD",
+        "ticker": "DX-Y.NYB",
+        "market_context_currency": "USD",
+        "alignment": "index",
+        "note": "Dollar Index proxy aligned with USD strength."
+      },
+      "event_input": {
+        "title": "JOLTS Job Openings",
+        "currency": "USD",
+        "impact": "High",
+        "category": "Unknown",
+        "event_date": "2025-03-31T19:30:00",
+        "actual": 7570000.0,
+        "forecast": 7690000.0,
+        "previous": 7760000.0,
+        "raw_actual_str": "7.57M",
+        "raw_forecast_str": "7.69M",
+        "raw_previous_str": "7.76M",
+        "detail_text": "Source: Bureau of Labor Statistics (latest release) | Measures: Number of job openings during the reported month, excluding the farming industry; | Usual Effect: 'Actual' greater than 'Forecast' is good for currency; | Frequency: Released monthly, about 35 days after the month ends; | Next Release: Apr 29, 2025 | FF Notes: It's released late, but can impact the market because job openings are a leading indicator of overall employment; | Why Traders Care: Job creation is an important leading indicator of consumer spending, which accounts for a majority of overall economic activity; | Acro Expand: Job Openings and Labor Turnover Survey (JOLTS);",
+        "source": "Forex Factory (Historical CSV)",
+        "external_id": null
+      },
+      "market_context": {
+        "target_asset": "DX-Y.NYB",
+        "event_title": "JOLTS Job Openings",
+        "event_category": "Unknown",
+        "actual_value": 7570000.0,
+        "forecast_value": 7690000.0,
+        "previous_value": 7760000.0,
+        "historical_std": 296681.5222259861,
+        "historical_volatility": 0.045068063660864466,
+        "atr_current": 0.4780019124348958,
+        "atr_baseline": 0.4310003008161272,
+        "implied_volatility": 16.34000015258789,
+        "yield_spread": 0.8849999904632568,
+        "base_rate": null,
+        "quote_rate": null,
+        "calculated_surprise": 0.13482470933775068,
+        "calculated_volatility": 2.0545261935197816
+      }
+    }
+  ],
+  "analyzed_events": [],
+  "skipped": [
+    {
+      "stage": "capacity_db",
+      "event_title": "German Prelim CPI m/m",
+      "currency": "EUR",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "GDP m/m",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Retail Sales m/m",
+      "currency": "GBP",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Core PCE Price Index m/m",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Final GDP q/q",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Unemployment Claims",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "CPI y/y",
+      "currency": "GBP",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Flash Manufacturing PMI",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Flash Manufacturing PMI",
+      "currency": "GBP",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "German Flash Manufacturing PMI",
+      "currency": "EUR",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "French Flash Manufacturing PMI",
+      "currency": "EUR",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Flash Services PMI",
+      "currency": "GBP",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "French Flash Services PMI",
+      "currency": "EUR",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Flash Services PMI",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "German Flash Services PMI",
+      "currency": "EUR",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Core Retail Sales m/m",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Retail Sales m/m",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Official Bank Rate",
+      "currency": "GBP",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Claimant Count Change",
+      "currency": "GBP",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Unemployment Claims",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Federal Funds Rate",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "CPI m/m",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Trimmed CPI y/y",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Median CPI y/y",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Retail Sales m/m",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Core Retail Sales m/m",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Prelim UoM Consumer Sentiment",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "GDP m/m",
+      "currency": "GBP",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Prelim UoM Inflation Expectations",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Unemployment Claims",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "PPI m/m",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Core PPI m/m",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Core CPI m/m",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Overnight Rate",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "CPI m/m",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "CPI y/y",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "JOLTS Job Openings",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Employment Change",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Unemployment Rate",
+      "currency": "USD",
+      "reason": "max_events_reached(10)"
+    },
+    {
+      "stage": "capacity_db",
+      "event_title": "Unemployment Rate",
+      "currency": "CAD",
+      "reason": "max_events_reached(10)"
+    }
+  ],
+  "failures": [
+    {
+      "stage": "analyze",
+      "event_title": "Employment Change",
+      "currency": "CAD",
+      "error": "<!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>",
+      "traceback_text": "Traceback (most recent call last):\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/e2e_pipeline.py\", line 724, in stage_analyze_events\n    interpretation, signal = analyze_economic_event(\n                             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 955, in analyze_economic_event\n    interpretation = service.analyze(\n                     ^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 554, in analyze\n    result = invoke_with_retry(self._chain, prompt_inputs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 50, in invoke_with_retry\n    raise last_exc\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 33, in invoke_with_retry\n    result = chain.invoke(inputs)\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 3444, in invoke\n    input_ = context.run(step.invoke, input_, config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 6004, in invoke\n    return self.bound.invoke(\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 476, in invoke\n    self.generate_prompt(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1849, in generate_prompt\n    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1656, in generate\n    self._generate_with_cache(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1994, in _generate_with_cache\n    result = self._generate(\n             ^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1386, in _generate\n    raise e\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1354, in _generate\n    self.root_client.chat.completions.with_raw_response.parse(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_legacy_response.py\", line 364, in wrapped\n    return cast(LegacyAPIResponse[R], func(*args, **kwargs))\n                                      ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py\", line 184, in parse\n    return self._post(\n           ^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1259, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1047, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.NotFoundError: <!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>\n"
+    },
+    {
+      "stage": "analyze",
+      "event_title": "Unemployment Rate",
+      "currency": "USD",
+      "error": "<!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>",
+      "traceback_text": "Traceback (most recent call last):\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/e2e_pipeline.py\", line 724, in stage_analyze_events\n    interpretation, signal = analyze_economic_event(\n                             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 955, in analyze_economic_event\n    interpretation = service.analyze(\n                     ^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 554, in analyze\n    result = invoke_with_retry(self._chain, prompt_inputs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 50, in invoke_with_retry\n    raise last_exc\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 33, in invoke_with_retry\n    result = chain.invoke(inputs)\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 3444, in invoke\n    input_ = context.run(step.invoke, input_, config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 6004, in invoke\n    return self.bound.invoke(\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 476, in invoke\n    self.generate_prompt(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1849, in generate_prompt\n    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1656, in generate\n    self._generate_with_cache(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1994, in _generate_with_cache\n    result = self._generate(\n             ^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1386, in _generate\n    raise e\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1354, in _generate\n    self.root_client.chat.completions.with_raw_response.parse(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_legacy_response.py\", line 364, in wrapped\n    return cast(LegacyAPIResponse[R], func(*args, **kwargs))\n                                      ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py\", line 184, in parse\n    return self._post(\n           ^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1259, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1047, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.NotFoundError: <!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>\n"
+    },
+    {
+      "stage": "analyze",
+      "event_title": "Average Hourly Earnings m/m",
+      "currency": "USD",
+      "error": "<!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>",
+      "traceback_text": "Traceback (most recent call last):\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/e2e_pipeline.py\", line 724, in stage_analyze_events\n    interpretation, signal = analyze_economic_event(\n                             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 955, in analyze_economic_event\n    interpretation = service.analyze(\n                     ^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 554, in analyze\n    result = invoke_with_retry(self._chain, prompt_inputs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 50, in invoke_with_retry\n    raise last_exc\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 33, in invoke_with_retry\n    result = chain.invoke(inputs)\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 3444, in invoke\n    input_ = context.run(step.invoke, input_, config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 6004, in invoke\n    return self.bound.invoke(\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 476, in invoke\n    self.generate_prompt(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1849, in generate_prompt\n    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1656, in generate\n    self._generate_with_cache(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1994, in _generate_with_cache\n    result = self._generate(\n             ^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1386, in _generate\n    raise e\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1354, in _generate\n    self.root_client.chat.completions.with_raw_response.parse(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_legacy_response.py\", line 364, in wrapped\n    return cast(LegacyAPIResponse[R], func(*args, **kwargs))\n                                      ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py\", line 184, in parse\n    return self._post(\n           ^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1259, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1047, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.NotFoundError: <!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>\n"
+    },
+    {
+      "stage": "analyze",
+      "event_title": "Non-Farm Employment Change",
+      "currency": "USD",
+      "error": "404 page not found",
+      "traceback_text": "Traceback (most recent call last):\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/e2e_pipeline.py\", line 724, in stage_analyze_events\n    interpretation, signal = analyze_economic_event(\n                             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 955, in analyze_economic_event\n    interpretation = service.analyze(\n                     ^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 554, in analyze\n    result = invoke_with_retry(self._chain, prompt_inputs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 50, in invoke_with_retry\n    raise last_exc\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 33, in invoke_with_retry\n    result = chain.invoke(inputs)\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 3444, in invoke\n    input_ = context.run(step.invoke, input_, config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 6004, in invoke\n    return self.bound.invoke(\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 476, in invoke\n    self.generate_prompt(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1849, in generate_prompt\n    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1656, in generate\n    self._generate_with_cache(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1994, in _generate_with_cache\n    result = self._generate(\n             ^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1386, in _generate\n    raise e\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1354, in _generate\n    self.root_client.chat.completions.with_raw_response.parse(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_legacy_response.py\", line 364, in wrapped\n    return cast(LegacyAPIResponse[R], func(*args, **kwargs))\n                                      ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py\", line 184, in parse\n    return self._post(\n           ^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1259, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1047, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.NotFoundError: 404 page not found\n"
+    },
+    {
+      "stage": "analyze",
+      "event_title": "Unemployment Rate",
+      "currency": "CAD",
+      "error": "<!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>",
+      "traceback_text": "Traceback (most recent call last):\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/e2e_pipeline.py\", line 724, in stage_analyze_events\n    interpretation, signal = analyze_economic_event(\n                             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 955, in analyze_economic_event\n    interpretation = service.analyze(\n                     ^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 554, in analyze\n    result = invoke_with_retry(self._chain, prompt_inputs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 50, in invoke_with_retry\n    raise last_exc\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 33, in invoke_with_retry\n    result = chain.invoke(inputs)\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 3444, in invoke\n    input_ = context.run(step.invoke, input_, config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 6004, in invoke\n    return self.bound.invoke(\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 476, in invoke\n    self.generate_prompt(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1849, in generate_prompt\n    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1656, in generate\n    self._generate_with_cache(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1994, in _generate_with_cache\n    result = self._generate(\n             ^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1386, in _generate\n    raise e\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1354, in _generate\n    self.root_client.chat.completions.with_raw_response.parse(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_legacy_response.py\", line 364, in wrapped\n    return cast(LegacyAPIResponse[R], func(*args, **kwargs))\n                                      ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py\", line 184, in parse\n    return self._post(\n           ^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1259, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1047, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.NotFoundError: <!DOCTYPE html><html lang=\"en\"><head title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width\"><link href=\"https://www.arvancloud.ir/css/new-error-page.css\" rel=\"stylesheet\"><link rel=\"icon\" type=\"image/x-icon\" href=\"https://www.arvancloud.ir/favicon-en.ico\"><title></title></head><body><section class=\"error-section error-section--ltr error-section--hide\" id=\"en\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">Error 404</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">The request has been blocked from your IP or your location!</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">Why am I seeing this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">The owner of arvancloud.ir has blocked your IP or geolocation.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">How to fix this error?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">If you are using a VPN or any IP modification software, disable that and refresh the webpage. If you continue to encounter this error, contact the administrators of arvancloud.ir or your ISP.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">Are you the admin of this website?</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">If you haven't defined this restriction in the Firewall section of ArvanCloud’s panel, please submit a ticket.\n<a class=\"error-section__help-link\" href=\"https://blog.arvancloud.ir/customized-arvancloud-error-codes/\">Read more</a></div></div></div></div></div></div></section><section class=\"error-section error-section--hide\" id=\"fa\"><div class=\"container container--center\"><div class=\"error-section__main\"><div class=\"error-section__information\"><h1 class=\"error-section__title\">خطای ۴۰۴</h1></div><div class=\"error-section__information\"><h2 class=\"error-section__subtitle\">متاسفانه صفحه مورد نظر شما وجود ندارد.</h2><div class=\"error-section__contents error-section__contents--user\"><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">چرا این خطا را مشاهده می‌کنید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">مدیر وب‌سایت arvancloud.ir درخواست از IP یا منطقه‌ی جغرافیایی شما را به‌ دلایلی مسدود کرده است.\n </div></div><div class=\"error-section__content error-section__content--user\"><div class=\"error-section__content-title\">برای رفع این خطا چه باید کرد؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--user\">اگر از VPN یا نرم‌افزارهای تغییردهنده‌ی IP استفاده می‌کنید، آن‌ها را غیرفعال کرده و صفحه‌ی وب‌سایت را دوباره باز کنید. اگر هم‌چنان با این خطا روبه‌رو می‌شوید، با مدیر سایت arvancloud.ir یا شرکت سرویس‌دهنده‌ی اینترنت خود تماس بگیرید.\n </div></div></div><div class=\"error-section__separator\"></div><div class=\"error-section__contents error-section__contents--admin\"><div class=\"error-section__content error-section__content--admin\"><div class=\"error-section__content-title\">مدیر این وب‌سایت هستید؟</div><div class=\"error-section__content-subtitle error-section__content-subtitle--admin\">اگر این محدودیت را در پنل ابر آروان بخش Firewall تعریف نکرده‌اید، اقدام به ثبت تیکت کنید.\n<a class=\"error-section__help-link\" href=\"https://www.arvancloud.ir/help/fa/article/360034319853-کد-خطاهای-اختصاصی-ابر-آروان\">لینک راهنما</a></div></div></div></div></div></div></section><script src=\"https://www.arvancloud.ir/js/app-error-page.js\"></script></body></html>\n"
+    },
+    {
+      "stage": "analyze",
+      "event_title": "ISM Services PMI",
+      "currency": "USD",
+      "error": "404 page not found",
+      "traceback_text": "Traceback (most recent call last):\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/e2e_pipeline.py\", line 724, in stage_analyze_events\n    interpretation, signal = analyze_economic_event(\n                             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 955, in analyze_economic_event\n    interpretation = service.analyze(\n                     ^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/nlp_event.py\", line 554, in analyze\n    result = invoke_with_retry(self._chain, prompt_inputs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 50, in invoke_with_retry\n    raise last_exc\n  File \"/home/sina/Desktop/Sina/Crypto/test/v2/llm_utils.py\", line 33, in invoke_with_retry\n    result = chain.invoke(inputs)\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 3444, in invoke\n    input_ = context.run(step.invoke, input_, config)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/runnables/base.py\", line 6004, in invoke\n    return self.bound.invoke(\n           ^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 476, in invoke\n    self.generate_prompt(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1849, in generate_prompt\n    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1656, in generate\n    self._generate_with_cache(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_core/language_models/chat_models.py\", line 1994, in _generate_with_cache\n    result = self._generate(\n             ^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1386, in _generate\n    raise e\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/langchain_openai/chat_models/base.py\", line 1354, in _generate\n    self.root_client.chat.completions.with_raw_response.parse(\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_legacy_response.py\", line 364, in wrapped\n    return cast(LegacyAPIResponse[R], func(*args, **kwargs))\n                                      ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py\", line 184, in parse\n    return self._post(\n           ^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1259, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sina/Desktop/Sina/Crypto/crypto/lib/python3.11/site-packages/openai/_base_client.py\", line 1047, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.NotFoundError: 404 page not found\n"
+    }
+  ],
+  "fatal_error": "Pipeline interrupted by user."
+}
