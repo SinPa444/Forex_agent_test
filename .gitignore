@@ -6,3 +6,6 @@
 # Database files
 *.db
 *.db.*
+
+# Environment variables
+.env
