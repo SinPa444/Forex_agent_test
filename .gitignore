@@ -2,3 +2,7 @@
 # Database files
 *.db
 *.db.*
+
+# Database files
+*.db
+*.db.*
