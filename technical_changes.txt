@@ -1,0 +1,3410 @@
+diff --git a/.gitignore b/.gitignore
+index 6ae293b..de46135 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,11 +1,27 @@
++# --- Python ---
++__pycache__/
++*.pyc
++*.pyo
++*.pyd
++.pytest_cache/
++.mypy_cache/
++.ruff_cache/
+ 
+-# Database files
++# --- دیتابیس‌ها ---
+ *.db
+ *.db.*
+ 
+-# Database files
+-*.db
+-*.db.*
+-
+-# Environment variables
++# --- متغیرهای محیطی ---
+ .env
++
++# --- خروجی بک‌تست (Phase 1: manifests و equity curves) ---
++v2/backtest/results/
++
++# --- Virtualenv ---
++.venv/
++venv/
++
++# --- IDE / OS ---
++.vscode/
++.idea/
++.DS_Store
+diff --git a/v2/AGENTS.md b/v2/AGENTS.md
+index 1e6bcf7..54b9c03 100644
+--- a/v2/AGENTS.md
++++ b/v2/AGENTS.md
+@@ -35,8 +35,20 @@ agents/
+     nlp_event.py             # تحلیل LLM رویداد + امتیازدهی قطعی
+     nlp_news.py              # تحلیل LLM خبر + Macro Digest
+     nlp_x.py                 # تحلیل LLM سخنران
+-  technical/
+-    technical_analyzer.py    # امتیازدهنده قطعی SMC با ۷ مؤلفه وزنی
++  technical/                 # بازساخت Phase 1 — monolith → ماژول‌ها (semantics یکسان)
++    engine.py                # calculate_technical_metrics (API عمومی؛ ترکیب ۱۰ فاکتور)
++    analyzer.py              # TechnicalAgent: deterministic + روایت LLM + LLM Guard
++    llm_guard.py             # اعتبارسنجی روایت LLM در برابر سیگنال deterministic
++    models.py                # TechnicalMetrics / ComponentScores (Pydantic)
++    data/                    # fetch + FetchProvenance + DataQualityReport + CircuitBreaker
++    indicators/              # trend / momentum / volatility(ADX/CHOP/ATR) / price_action
++    structure/               # swings / BOS-CHoCH / FVG / Order Block / Liquidity
++    levels/                  # PDH/PDL / OTE
++    multi_timeframe/         # scan_timeframes (۷ TF، بدون LLM) + HTF bias
++    confluence/              # WEIGHTS + weights_hash + aggregate_score + confidence
++    signals/                 # DIRECTION_DEADBAND (±0.15) + TechnicalReport/LLMStrategy
++    technical_analyzer.py    # فکس سازگاری — import قدیمی‌ها از اینجا کار می‌کند
++    mtf_scanner.py           # فکس سازگاری اسکنر MTF
+   risk/
+     risk_manager.py          # تصمیم نهایی APPROVED/REJECTED/WAIT + TradePlan
+   supervisor/
+@@ -51,9 +63,20 @@ ingestion/
+   seed_speakers.py              # سید ~۴۰ سخنران با وزن
+ 
+ orchestration/
+-  run_phase3.py          # ارکستراتور فاز ۳ (سیستم چندعاملی کامل)
++  run_phase3.py          # ارکستراتور فاز ۳ (سیستم چندعاملی کامل؛ Phase 1: run_id + decision log)
+   trade_evaluator.py     # ارزیاب‌گر بی‌صدا WIN/LOSS/EXPIRED برای cron
+ 
++observability/           # Phase 1 — حسابرسی تصمیمات
++  decision_log.py        # ثبت هر تصمیم technical در technical_decisions (idempotent)
++  run_manifest.py        # manifest تکرارپذیری هر ران (نسخه موتور/وزن‌ها/hash کد/پکیج‌ها)
++
++scripts/                 # اسکریپت‌های ad-hoc (قبلاً در ریشه v2 بودند)
++backtest/
++  config.py              # هزینه‌های واقعی per-symbol + BARS_PER_YEAR (Phase 1 / W5)
++  walkforward.py         # اسکورینگ walk-forward با تابع پروداکشن (patch: data/market_data)
++  engine.py              # پوزیشن/هزینه/متریک‌ها (annualization متناسب با TF)
++  runner.py              # CLI بک‌تست IS/OOS + manifest ران
++
+ run.py                   # CLI یکپارچه فاز ۱ (--mode news|events|speakers|all)
+ run_phase2.py            # ارکستراتور فاز ۲
+ ```
+@@ -149,9 +172,21 @@ final_score = sentiment × speaker_weight × stmt_type_weight × (1+surprise)
+ ```
+ وزن نوع بیانیه: testimony/official_transcript=1.15، tweet=0.90.
+ 
+-### تکنیکال (technical_analyzer.py) — ۷ مؤلفه وزنی
+-structure=0.25، smc_location=0.20، trend=0.18، mtf_confluence=0.12 (فعلاً placeholder خنثی)، momentum=0.10، volatility=0.10، price_action=0.05.
+-ابزارها: talipp (RSI/MACD/EMA/ADX) + smartmoneyconcepts (BOS/CHoCH/FVG/OB). امتیاز نهایی فقط اگر structure یا smc_location ارزیابی شده باشد. LLM فقط روایت استراتژی می‌نویسد.
++### تکنیکال (agents/technical/) — ۱۰ فاکتور وزنی
++Phase 1: monolith `technical_analyzer.py` به ماژول‌های `data/ indicators/ structure/ levels/ multi_timeframe/ confluence/ signals/` بازسازی شد — **semantics امتیازدهی بدون تغییر** (تست طلایی bit-identical در `tests/technical/test_golden.py`). فکس‌های سازگاری `technical_analyzer.py` و `mtf_scanner.py` import قدیمی‌ها را نگه می‌دارند.
++
++وزن‌ها (single source: `confluence/weights.py` — تغییر فقط با backtest):
++structure=0.20، smc_location=0.15، trend=0.13، liquidity_sweep=0.12، mtf_confluence=0.10، ote_zone=0.10، pdh_pdl=0.08، momentum=0.06، volatility=0.04، price_action=0.02.
++ابزارها: pandas-ta-classic (RSI/MACD/EMA/ADX/CHOP/ATR/Supertrend/CDL) + smartmoneyconcepts (BOS/CHoCH/FVG/OB/Liquidity/Retracement). امتیاز نهایی فقط اگر structure یا smc_location ارزیابی شده باشد. LLM فقط روایت استراتژی می‌نویسد (LLM Guard + `llm_status` در گزارش).
++
++تغییرات آگاهانه Phase 1 (مستند در تست‌ها):
++- deadband یکپارچه direction: **±0.15** (قبل: Agent ±0.1 / Scanner ±0.15) — بازه (0.10, 0.15) حالا NEUTRAL است
++- داده خام جدید بدون تأثیر روی score: ATR، ساختار خام BOS/CHoCH (age + sequence)، فاصله‌های OB/FVG، FetchProvenance، DataQualityReport
++- CircuitBreaker روی fetch بازار (۵ شکست → ۵ دقیقه)
++- `choch_aware` mode ساختار **خاموش** است (پیش‌فرض `bos_only`) — روشن‌سازی فقط با backtest A/B
++- W10 (مشاهده‌شده): فاکتور trend در حالت confirmed افت 0.8 ثابت برمی‌گرداند (هر دو جهت) — quirk نسخه قبل، فعلاً حفظ شده
++
++حسابرسی (Phase 1): هر ران یک `run_id` + manifest دارد (`observability/run_manifest.py` → `backtest/results/runs/<run_id>/manifest.json`) و هر تصمیم technical در جدول `technical_decisions` ثبت می‌شود (idempotent با `dedup_hash`؛ backfill به `plan_id`/`trade_id`).
+ 
+ ### تجمیع فاز ۲ (phase2_graph.py)
+ میانگین وزنی رویدادها (بر اساس impact)؛ پایه سلسله‌مراتبی: event > news > speaker.
+@@ -183,6 +218,9 @@ Fallback در شکست LLM: اجرای کامل (همه True، H1).
+ | `composite_signals` | سیگنال‌های تجمیعی فاز ۲ |
+ | `raw_speaker_items` | متن‌های خام سخنران |
+ | `trade_outcomes` | حافظه معاملات (entry_zone_low/high، SL/TP، وضعیت PENDING/WIN/LOSS/EXPIRED) |
++| `strategy_plans` | برگه‌های استراتژی شرطی Phase 7 (PENDING/TRIGGERED/FILLED/INVALIDATED/EXPIRED) |
++| `paper_account` / `paper_positions` | حساب و پوزیشن‌های مجازی Phase 8 |
++| `technical_decisions` | **Phase 1:** لاگ تصمیمات technical engine — snapshot خام + ۱۰ فاکتور + weights_hash + provenance + data quality + llm_status (idempotent با `dedup_hash`؛ backfill `plan_id`/`trade_id`) |
+ 
+ `get_trade_memory_stats(currency)` → win_rate به‌صورت **عدد 0–100** (نه کسر!).
+ `session_scope()` کانتکست‌منیجر تراکنش است.
+diff --git a/v2/FILE_MAP.md b/v2/FILE_MAP.md
+index c15d270..322d0cd 100644
+--- a/v2/FILE_MAP.md
++++ b/v2/FILE_MAP.md
+@@ -90,3 +90,65 @@ HTF bias: BULLISH (D1+W1 agree)
+ [SCALP — M15]  INVALID
+   note: counter-bias score -0.30 below 0.40 threshold
+ ```
++
++---
++
++# Phase 1 — بازساخت موتور Technical + Lایه حسابرسی (فوق‌النسخ بر فایل‌های بالا)
++
++## تغییرات (semantics امتیازدهی بدون تغییر — تست طلایی bit-identical)
++
++### `agents/technical/` — monolith → ماژول‌ها
++| فایل جدید | نقش |
++|---|---|
++| `engine.py` | `calculate_technical_metrics` — ترکیب ۱۰ فاکتور + CircuitBreaker + provenance/data-quality |
++| `analyzer.py` | `TechnicalAgent` (زنجیره/prompt/fallbackها همان نسخه قبل + guard + `precomputed_metrics`) |
++| `llm_guard.py` | اعتبارسنجی روایت LLM (طول + تناقض جهت) |
++| `models.py` | `TechnicalMetrics`/`ComponentScores` + فیلد‌های افزایشی Phase 1 (atr, structure_raw, level_distances, data_quality_json, provenance_json, engine_version) |
++| `data/market_data.py` | `fetch_price_history` + `FetchProvenance` + `resample_from_1h` + `period_for_interval` |
++| `data/validators.py` | `validate_ohlc` → `DataQualityReport` (فقط گزارش) |
++| `data/circuit_breaker.py` | CLOSED/OPEN/HALF_OPEN (۵ شکست → ۳۰۰ ثانیه) |
++| `indicators/{trend,momentum,volatility,patterns,utils}.py` | فاکتورهای pandas-ta (ATR خام در volatility) |
++| `structure/{swings,bos_choch,fvg,order_blocks,liquidity}.py` | فاکتورهای SMC (BOS/CHoCH خام + age + sequence) |
++| `levels/{pdh_pdl,ote}.py` | PDH/PDL و OTE |
++| `multi_timeframe/{scanner,alignment}.py` | `scan_timeframes` + `compute_htf_bias` + `compute_mtf_confluence` (+ `valid_timeframes()` — رفع باگ W9) |
++| `confluence/{weights,scorer,confidence}.py` | WEIGHTS واحد + `weights_hash()` + تجمیع + confidence |
++| `signals/{technical_signal,report}.py` | `DIRECTION_DEADBAND=0.15` + مدل‌های خروجی (+ `llm_status`/`llm_guard_flags`) |
++| `technical_analyzer.py`, `mtf_scanner.py` | **فکس سازگاری** — import قدیمی‌ها دست‌نخورده |
++
++### `core/database.py`
++- جدول جدید `technical_decisions` (TechnicalDecisionDB) + `insert_technical_decision_if_new` (idempotent)
++
++### `observability/` (جدید)
++- `decision_log.py` — `log_technical_decision` (snapshot خام + ۱۰ فاکتور + hashes + llm) — سکوت در خطا
++- `run_manifest.py` — `new_run_id`/`start_manifest`/`update_manifest`/`finish_manifest` + `code_hash` → `backtest/results/runs/<run_id>/manifest.json`
++
++### `orchestration/run_phase3.py`
++- `run_id` + manifest ابتدای/پایان ران
++- decision log برای همه TFهای اسکن‌شده (TT روایت‌شده با `llm_status`)
++- `analyze(..., precomputed_metrics=strongest.metrics)` — حذف double-fetch + حذف پارامتر مرده `temporal_context` (W6)
++- backfill `plan_id`/`trade_id` در technical_decisions
++
++### `backtest/`
++- `config.py`: `BARS_PER_YEAR` (کنوانسیون ۲۵۲ روزه: 4h=1512, 60m=6048, ...) — رفع W5
++- `engine.py`: `bars_per_year_from_index` + پارامتر `bars_per_year` در `run_backtest` (Sharpe/Sortino/CAGR)
++- `walkforward.py`: patch جدید روی `data/market_data.fetch_price_history` (+ `DATA_SOURCE="historical_feeder"`)؛ **رفع W3/W4**: preload H4/H2 از 1h ری‌سیمپل می‌شود
++- `runner.py`: manifest ران + verdict هر نماد در manifest + انتقال bars_per_year
++
++### `tests/technical/` (جدید — ۹۷ تست)
++- `test_golden.py` — bit-identical با موتور قدیمی (H1/D1/H4 × ۲۵ فیلد) + فیلد‌های حسابرسی
++- `test_factors.py` — آستانه‌ها/clamp هر فاکتور
++- `test_weights.py` — مجموع وزن‌ها/استقرار hash/فرمول‌های تجمیع و confidence
++- `test_direction.py` — deadband یکپارچه + مستندسازی اختلاف W2 (بازه 0.10–0.15)
++- `test_data_layer.py` — validator/CB/resample/provenance
++- `test_backtest.py` — identity پروداکشن↔بک‌تست + patch target + W3/W4 + W5
++- `test_observability.py` — idempotency decision log + manifest
++- `test_analyzer.py` — guard/llm_status/precomputed (LLM تقلبی)
++
++### تغییرات آگاهانه (مستند — فقط این‌ها)
++1. deadband direction یکپارچه ±0.15 (W2) — بازه (0.10,0.15) → NEUTRAL
++2. `valid_timeframes()` اضافه شد (W9) — قبل با AttributeError کل MTF پایپ‌لاین کرش می‌کرد
++3. عزل خطای جدا برای فاکتورها (Structur/SWC قبلاً یک try مشترک داشتند) — روی دیتای سالم بی‌اثر
++4. fallback swing در `detect_swings` (با خطا، قبل کل بلوک SMC می‌مرد)
++5. `choch_aware` آماده اما **خاموش** (پیش‌فرض `bos_only`)
++6. داده‌های خام جدید (ATR، ساختار، فاصله‌ها، provenance، data quality) — بدون تأثیر روی score
++7. W10 مشاهده و مستند شد: trend confirmed = 0.8 ثابت (هر دو جهت) — quirk نسخه قبل، حفظ شد
+diff --git a/v2/agents/technical/__init__.py b/v2/agents/technical/__init__.py
+index e69de29..ec9a471 100644
+--- a/v2/agents/technical/__init__.py
++++ b/v2/agents/technical/__init__.py
+@@ -0,0 +1,45 @@
++"""
++agents/technical — موتور تحلیل فنی (دeterministic + روایت LLM)
++
++بازساخت Phase 1: ماژول‌بندی به‌جای monolith
++  data/             → fetch + provenance + data quality + circuit breaker
++  indicators/       → trend / momentum / volatility / price action
++  structure/        → swings / BOS-CHoCH / FVG / Order Block / Liquidity
++  levels/           → PDH/PDL / OTE
++  multi_timeframe/  → اسکن ۷ TF + هم‌راستایی (بدون LLM)
++  confluence/       → وزن‌ها + تجمیع score + confidence
++  signals/          → direction از score + مدل‌های خروجی
++  engine.py         → calculate_technical_metrics (API عمومی)
++  analyzer.py       → TechnicalAgent (deterministic + LLM narrative + guard)
++
++نکته سازگاری: technical_analyzer.py و mtf_scanner.py به‌عنوان فکس
++import قدیمی‌ها باقی مانده‌اند.
++"""
++
++from agents.technical.analyzer import TechnicalAgent
++from agents.technical.engine import calculate_technical_metrics
++from agents.technical.models import ComponentScores, TechnicalMetrics
++from agents.technical.multi_timeframe.scanner import (
++    MTFMatrix,
++    TimeframeScore,
++    scan_timeframes,
++)
++from agents.technical.signals.report import LLMStrategy, TechnicalReport
++from agents.technical.signals.technical_signal import (
++    DIRECTION_DEADBAND,
++    direction_from_score,
++)
++
++__all__ = [
++    "TechnicalAgent",
++    "calculate_technical_metrics",
++    "ComponentScores",
++    "TechnicalMetrics",
++    "MTFMatrix",
++    "TimeframeScore",
++    "scan_timeframes",
++    "LLMStrategy",
++    "TechnicalReport",
++    "DIRECTION_DEADBAND",
++    "direction_from_score",
++]
+diff --git a/v2/agents/technical/analyzer.py b/v2/agents/technical/analyzer.py
+new file mode 100644
+index 0000000..a25cb2f
+--- /dev/null
++++ b/v2/agents/technical/analyzer.py
+@@ -0,0 +1,213 @@
++"""
++agents/technical/analyzer.py
++============================
++TechnicalAgent — ترکیب موتور deterministic + روایت LLM (بازساخت Phase 1).
++
++    agent = TechnicalAgent(llm)
++    metrics, report = agent.analyze("EURUSD=X", timeframe="D1")
++
++اصل: LLM فقط روایت می‌سازد؛ direction/score/confidence deterministic هستند.
++زنجیره LLM، prompt و fallbackها دقیقاً نسخه قبل است (بدون تغییر).
++
++تغییرات Phase 1 (مستند و کوچک):
++  - W2: direction از score با deadband یکپارچه ±0.15 (قبلاً ±0.1)
++  - W6: پارامتر مرده temporal_context حذف شد
++  - LLM Guard: خروجی LLM در برابر سیگنال deterministic اعتبارسنجی می‌شود؛
++    در تناقض آشکار یک retry و در شکست نهایی fallback «Stand aside» —
++    llm_status ∈ {ok, guard_flagged, fallback} در report ثبت می‌شود
++  - precomputed_metrics: اگر MTF اسکن قبلاً همان TF را محاسبه کرده باشد،
++    دوباره fetch نمی‌شود (حذف double-fetch)
++"""
++
++from __future__ import annotations
++
++import logging
++from typing import Optional
++
++from langchain_core.language_models import BaseChatModel
++from langchain_core.output_parsers import PydanticOutputParser
++from langchain_core.prompts import ChatPromptTemplate
++from langchain_core.runnables import RunnableLambda
++
++from core.llm_utils import invoke_with_retry, _strip_json_markdown
++
++from .engine import calculate_technical_metrics
++from .llm_guard import validate_narrative
++from .models import TechnicalMetrics
++from .signals.report import LLMStrategy, TechnicalReport
++from .signals.technical_signal import DIRECTION_DEADBAND, direction_from_score
++
++logger = logging.getLogger(__name__)
++
++# --- Prompt (متن دقیقاً نسخه قبل) ---
++_TECH_SYSTEM_PROMPT = """\
++You are an expert technical analyst specializing in Smart Money Concepts (SMC).
++You are given deterministic technical scores calculated by a Python engine. 
++Your ONLY job is to formulate a concise trading strategy and narrative reasoning based on these scores. 
++DO NOT calculate or output scores yourself. Just explain the setup and suggest the action based on the provided data.
++
++If score is positive, focus on long strategies. If negative, focus on short strategies. If near 0, suggest standing aside.
++"""
++
++_TECH_HUMAN_TEMPLATE = """\
++## Technical Data for {ticker} (Timeframe: {timeframe})
++
++Deterministic Scores (calculated by Python):
++- Technical Score: {tech_score} (-1 to 1)
++- Technical Confidence: {tech_confidence} (0 to 1)
++- Component Scores: Structure={structure}, Trend={trend}, SMC Location={smc_loc}, MTF Confluence={mtf_conf}, Momentum={mom}, Volatility(ADX)={vol}, Liquidity Sweep={liq_sweep}, PDH/PDL={pdh_pdl}, OTE Zone={ote}
++
++Market Context:
++- Current Price: {current_price}
++- Trend Status: {trend_status} (ADX: {adx_value}, CHOP: {chop_value})
++- Higher Timeframe ({htf_interval}) Trend: {htf_trend_status}
++- Recent Break of Structure: {recent_bos}
++- Liquidity: {liq_status}
++- Previous Day High/Low: {pdh} / {pdl} — {pdh_pdl_status}
++- OTE Zone: {ote_status}
++- Active Bullish OB (Demand): {active_bullish_ob}
++- Active Bearish OB (Supply): {active_bearish_ob}
++- Active Bullish FVG Zone (Demand): {active_bull_fvg_low} to {active_bull_fvg_high}
++- Active Bearish FVG Zone (Supply): {active_bear_fvg_low} to {active_bear_fvg_high}
++- Momentum: RSI={rsi}, MACD Hist={macd_histogram}
++- Last Candle: {last_candle_type}
++
++Based ONLY on the data above, formulate the strategy and reasoning.
++{format_instructions}
++"""
++
++# --- retry guard: چند بار برای خروجی نامعتبر تلاش می‌کنیم ---
++GUARD_MAX_ATTEMPTS = 2
++
++
++class TechnicalAgent:
++    """Independent Technical Analysis Agent."""
++
++    def __init__(self, llm: BaseChatModel) -> None:
++        self.llm = llm
++        self.parser = PydanticOutputParser(pydantic_object=LLMStrategy)
++        self.prompt = ChatPromptTemplate.from_messages([
++            ("system", _TECH_SYSTEM_PROMPT),
++            ("human", _TECH_HUMAN_TEMPLATE)
++        ]).partial(format_instructions=self.parser.get_format_instructions())
++
++        self.chain = self.prompt | self.llm | RunnableLambda(_strip_json_markdown) | self.parser
++
++    def analyze(
++        self,
++        ticker: str,
++        timeframe: str = "D1",
++        precomputed_metrics: Optional[TechnicalMetrics] = None,
++    ) -> tuple[TechnicalMetrics, TechnicalReport]:
++        """
++        اجرای کامل تحلیل: deterministic + LLM narrative.
++
++        precomputed_metrics: اگر MTF اسکن قبلاً همین TF را محاسبه کرده
++        باشد (همان ticker+TF) پاس می‌شود تا دوباره fetch نشود.
++        """
++        logger.info(f"[Tech Agent] Analyzing {ticker} on {timeframe}...")
++
++        if precomputed_metrics is not None:
++            metrics = precomputed_metrics
++        else:
++            metrics = calculate_technical_metrics(ticker, timeframe=timeframe)
++
++        # Determine Direction from Score
++        if metrics.technical_score is None:
++            return metrics, TechnicalReport(
++                direction=0,
++                score=0.0,
++                confidence=0.0,
++                strategy="Stand aside",
++                reasoning="Insufficient data to calculate technical score.",
++                llm_status="fallback",
++            )
++
++        score = metrics.technical_score
++        direction = direction_from_score(score)  # deadband یکپارچه Phase 1
++        confidence = metrics.technical_confidence or 0.0
++
++        prompt_inputs = {
++            "ticker": ticker,
++            "timeframe": timeframe,
++            "tech_score": f"{score:.2f}",
++            "tech_confidence": f"{confidence:.2f}",
++            "structure": f"{metrics.components.structure:.2f}" if metrics.components.structure is not None else "N/A",
++            "trend": f"{metrics.components.trend:.2f}" if metrics.components.trend is not None else "N/A",
++            "smc_loc": f"{metrics.components.smc_location:.2f}" if metrics.components.smc_location is not None else "N/A",
++            "mtf_conf": f"{metrics.components.mtf_confluence:.2f}" if metrics.components.mtf_confluence is not None else "N/A",
++            "liq_sweep": f"{metrics.components.liquidity_sweep:.2f}" if metrics.components.liquidity_sweep is not None else "N/A",
++            "pdh_pdl": f"{metrics.components.pdh_pdl:.2f}" if metrics.components.pdh_pdl is not None else "N/A",
++            "ote": f"{metrics.components.ote_zone:.2f}" if metrics.components.ote_zone is not None else "N/A",
++            "liq_status": metrics.liquidity_sweep_status or "N/A",
++            "pdh": f"{metrics.previous_day_high:.5f}" if metrics.previous_day_high is not None else "N/A",
++            "pdl": f"{metrics.previous_day_low:.5f}" if metrics.previous_day_low is not None else "N/A",
++            "pdh_pdl_status": metrics.pdh_pdl_status or "N/A",
++            "ote_status": metrics.ote_status or "N/A",
++            "htf_interval": metrics.htf_interval or "N/A",
++            "htf_trend_status": metrics.htf_trend_status or "N/A",
++            "mom": f"{metrics.components.momentum:.2f}" if metrics.components.momentum is not None else "N/A",
++            "vol": f"{metrics.components.volatility:.2f}" if metrics.components.volatility is not None else "N/A",
++            "current_price": f"{metrics.current_price:.4f}" if metrics.current_price else "N/A",
++            "trend_status": metrics.trend_status or "Unknown",
++            "adx_value": f"{metrics.adx_value:.1f}" if metrics.adx_value else "N/A",
++            "chop_value": f"{metrics.chop_value:.1f}" if metrics.chop_value else "N/A",
++            "recent_bos": metrics.recent_bos or "None detected",
++            "active_bullish_ob": f"{metrics.active_bullish_ob:.4f}" if metrics.active_bullish_ob is not None else "None nearby",
++            "active_bearish_ob": f"{metrics.active_bearish_ob:.4f}" if metrics.active_bearish_ob is not None else "None nearby",
++            "active_bull_fvg_low": f"{metrics.active_bull_fvg_low:.4f}" if metrics.active_bull_fvg_low is not None else "N/A",
++            "active_bull_fvg_high": f"{metrics.active_bull_fvg_high:.4f}" if metrics.active_bull_fvg_high is not None else "N/A",
++            "active_bear_fvg_low": f"{metrics.active_bear_fvg_low:.4f}" if metrics.active_bear_fvg_low is not None else "N/A",
++            "active_bear_fvg_high": f"{metrics.active_bear_fvg_high:.4f}" if metrics.active_bear_fvg_high is not None else "N/A",
++            "rsi": f"{metrics.rsi:.1f}" if metrics.rsi is not None else "N/A",
++            "macd_histogram": f"{metrics.macd_histogram:.4f}" if metrics.macd_histogram is not None else "N/A",
++            "last_candle_type": metrics.last_candle_type or "N/A",
++        }
++
++        last_reasons: list[str] = []
++        for attempt in range(1, GUARD_MAX_ATTEMPTS + 1):
++            try:
++                llm_strat = invoke_with_retry(self.chain, prompt_inputs)
++                if not isinstance(llm_strat, LLMStrategy):
++                    raise ValueError("LLM returned unexpected type")
++
++                guard = validate_narrative(llm_strat.strategy, llm_strat.reasoning, direction)
++                if guard.ok:
++                    logger.info(
++                        f"[Tech Agent] {ticker} Report: Dir={direction} "
++                        f"Score={score:.2f} Conf={confidence:.2f} (llm ok)"
++                    )
++                    return metrics, TechnicalReport(
++                        direction=direction, score=score, confidence=confidence,
++                        strategy=llm_strat.strategy, reasoning=llm_strat.reasoning,
++                        llm_status="ok",
++                    )
++
++                last_reasons = guard.reasons
++                logger.warning(
++                    "[Tech Agent] %s %s narrative guard failed (attempt %d/%d): %s",
++                    ticker, timeframe, attempt, GUARD_MAX_ATTEMPTS, guard.reasons,
++                )
++            except Exception as exc:
++                logger.error(f"[Tech Agent] LLM analysis failed for {ticker}: {exc}")
++                return metrics, TechnicalReport(
++                    direction=direction, score=score, confidence=confidence,
++                    strategy="Stand aside",
++                    reasoning=f"Technical LLM narrative failed: {exc}",
++                    llm_status="fallback",
++                )
++
++        # guard در هر دو تلاش ناموفق — روایت لنگ می‌ماند اما سیگنال deterministic سالم است
++        logger.warning(
++            "[Tech Agent] %s %s narrative flagged after %d attempts: %s",
++            ticker, timeframe, GUARD_MAX_ATTEMPTS, last_reasons,
++        )
++        return metrics, TechnicalReport(
++            direction=direction, score=score, confidence=confidence,
++            strategy="Stand aside",
++            reasoning=(
++                f"LLM narrative failed guard validation ({'; '.join(last_reasons)}); "
++                f"deterministic signal stands."
++            ),
++            llm_status="guard_flagged",
++        )
+diff --git a/v2/agents/technical/confluence/__init__.py b/v2/agents/technical/confluence/__init__.py
+new file mode 100644
+index 0000000..0f5ff73
+--- /dev/null
++++ b/v2/agents/technical/confluence/__init__.py
+@@ -0,0 +1 @@
++# لایه Confluence — وزن‌ها، تجمیع score، محاسبه confidence
+diff --git a/v2/agents/technical/confluence/confidence.py b/v2/agents/technical/confluence/confidence.py
+new file mode 100644
+index 0000000..f8e50d8
+--- /dev/null
++++ b/v2/agents/technical/confluence/confidence.py
+@@ -0,0 +1,59 @@
++"""
++agents/technical/confluence/confidence.py
++=========================================
++محاسبه Confidence [0, 1] — مستقل از Signal (قاعده طراحی پروژه).
++
++semantics نسخه قبل (بدون تغییر):
++  data_q     = 0.2 × (0.5×has_trend + 0.5×has_smc)
++  setup_q    = 0.3 × (0.5×has_ob + 0.5×has_fvg)
++  agreement  = 0.5 × (max(تعداد مثبت‌ها, تعداد منفی‌ها) / 3)
++               روی ترازهای structure/trend/momentum
++  confidence = clamp(data_q + setup_q + agreement, 0, 1)
++"""
++
++from __future__ import annotations
++
++from typing import Optional
++
++from ..models import ComponentScores
++
++AGREEMENT_BASE = 3  # تعداد فاکتورهای ترازدهنده
++
++
++def _clamp(value: float, low: float, high: float) -> float:
++    return max(low, min(high, value))
++
++
++def compute_confidence(
++    components: ComponentScores,
++    has_ob: bool,
++    has_fvg: bool,
++) -> float:
++    """Confidence نهایی [0, 1] بر پایه کیفیت داده و هم‌راستایی ترازها."""
++    # --- Data Quality ---
++    data_q = 0.0
++    if components.trend is not None:
++        data_q += 0.5
++    if components.smc_location is not None:
++        data_q += 0.5
++    data_q *= 0.2
++
++    # --- Setup Quality ---
++    setup_q = 0.0
++    if has_ob:
++        setup_q += 0.5
++    if has_fvg:
++        setup_q += 0.5
++    setup_q *= 0.3
++
++    # --- Agreement ---
++    signs: list[Optional[float]] = [
++        components.structure,
++        components.trend,
++        components.momentum,
++    ]
++    pos_count = sum(1 for s in signs if s is not None and s > 0)
++    neg_count = sum(1 for s in signs if s is not None and s < 0)
++    agreement = (max(pos_count, neg_count) / AGREEMENT_BASE) * 0.5
++
++    return _clamp(data_q + setup_q + agreement, 0.0, 1.0)
+diff --git a/v2/agents/technical/confluence/scorer.py b/v2/agents/technical/confluence/scorer.py
+new file mode 100644
+index 0000000..94624e2
+--- /dev/null
++++ b/v2/agents/technical/confluence/scorer.py
+@@ -0,0 +1,31 @@
++"""
++agents/technical/confluence/scorer.py
++=====================================
++تجمیع امتیاز نهایی از ۱۰ فاکتور (semantics نسخه قبل):
++
++  - اگر هیچ‌کدام از structure/smc_location محاسبه نشده باشند → None
++    (دیتای ساختاری نامعتبر = score نامعتبر، حتی اگر فاکتورهای دیگر OK باشند)
++  - وگرنه: مجموع وزن×امتیاز (None به‌عنوان 0) → clamp [-1, 1]
++"""
++
++from __future__ import annotations
++
++from typing import Optional
++
++from ..models import ComponentScores
++from .weights import WEIGHTS
++
++
++def _clamp(value: float, low: float, high: float) -> float:
++    return max(low, min(high, value))
++
++
++def aggregate_score(components: ComponentScores) -> Optional[float]:
++    """امتیاز نهایی technical score [-1, 1] یا None."""
++    if components.structure is not None or components.smc_location is not None:
++        raw = sum(
++            WEIGHTS[name] * (getattr(components, name) or 0.0)
++            for name in WEIGHTS
++        )
++        return _clamp(raw, -1.0, 1.0)
++    return None
+diff --git a/v2/agents/technical/confluence/weights.py b/v2/agents/technical/confluence/weights.py
+new file mode 100644
+index 0000000..bd7678b
+--- /dev/null
++++ b/v2/agents/technical/confluence/weights.py
+@@ -0,0 +1,50 @@
++"""
++agents/technical/confluence/weights.py
++======================================
++درست‌کننده (single source of truth) وزن‌ها و نسخه موتور.
++
++قاعده طلایی: هیچ‌جای دیگر از کد مقادیر وزن به‌صورت hardcoded وجود ندارد؛
++هر چیزی که score/confluence می‌سازد از این ماژول می‌خواند.
++
++مهم: تغییر این اعداد = تغییر semantics موتور — فقط با backtest A/B مجاز است
++(در Phase 1 مقادیر دقیقاً نسخه قبل است و score باید bit-identical بماند).
++
++weights_hash: hash sha1 وزن‌ها — در هر decision log و run manifest ثبت می‌شود
++تا هر score ثبت‌شده قابل پیگیری به نسخه‌ی وزن‌های خودش باشد.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import json
++
++# نسخه موتور (در provenance و decision log ثبت می‌شود)
++ENGINE_VERSION = "2.0.0"
++
++# وزن‌های ۱۰ فاکتور — مجموع = 1.0 (مقادیر نسخه قبل)
++WEIGHTS: dict[str, float] = {
++    "structure": 0.20,
++    "smc_location": 0.15,
++    "trend": 0.13,
++    "liquidity_sweep": 0.12,
++    "mtf_confluence": 0.10,
++    "ote_zone": 0.10,
++    "pdh_pdl": 0.08,
++    "momentum": 0.06,
++    "volatility": 0.04,
++    "price_action": 0.02,
++}
++
++
++def weights_hash() -> str:
++    """
++    sha1 کاننیکال وزن‌ها (کلید مرتب) — ۱۲ کاراکتر اول.
++    هر تغییر وزن → hash جدید → در decision log/manifest ثبت می‌شود.
++    """
++    canonical = json.dumps(WEIGHTS, sort_keys=True, separators=(",", ":"))
++    return hashlib.sha1(canonical.encode("utf-8")).hexdigest()[:12]
++
++
++def verify_weights_sum() -> bool:
++    """کنترل سلامت: مجموع وزن‌ها باید 1.0 باشد (tolerance 1e-9)."""
++    return abs(sum(WEIGHTS.values()) - 1.0) < 1e-9
+diff --git a/v2/agents/technical/data/__init__.py b/v2/agents/technical/data/__init__.py
+new file mode 100644
+index 0000000..b99064c
+--- /dev/null
++++ b/v2/agents/technical/data/__init__.py
+@@ -0,0 +1 @@
++# لایه داده بازار — fetch + provenance + validation + fault tolerance
+diff --git a/v2/agents/technical/data/circuit_breaker.py b/v2/agents/technical/data/circuit_breaker.py
+new file mode 100644
+index 0000000..df639aa
+--- /dev/null
++++ b/v2/agents/technical/data/circuit_breaker.py
+@@ -0,0 +1,97 @@
++"""
++agents/technical/data/circuit_breaker.py
++========================================
++Circuit Breaker سبک برای تماس‌های خارجی (yfinance).
++الگو: corepkg/policies/circuit_breaker از AgenticTrading — ساده‌سازی‌شده
++برای تک‌پروسه (thread-safe).
++
++حالت‌ها:
++  CLOSED    → تماس مجاز
++  OPEN      → همه تماس‌ها رد می‌شوند (failure_threshold شکست پشت‌سرهم)
++  HALF_OPEN → بعد از recovery_timeout، یک تماس آزمایشی مجاز است
++"""
++
++from __future__ import annotations
++
++import logging
++import threading
++import time
++from enum import Enum
++
++logger = logging.getLogger(__name__)
++
++
++class CircuitBreakerState(Enum):
++    CLOSED = "closed"
++    OPEN = "open"
++    HALF_OPEN = "half_open"
++
++
++class CircuitBreaker:
++    """
++    مانیتور شکست‌های پیاپی یک سرویس خارجی.
++
++    Args:
++        failure_threshold: تعداد شکست مجاز قبل از OPEN شدن
++        recovery_timeout: ثانیه تا حالت HALF_OPEN بعد از OPEN
++    """
++
++    def __init__(self, failure_threshold: int = 5, recovery_timeout: float = 300.0) -> None:
++        self.failure_threshold = failure_threshold
++        self.recovery_timeout = recovery_timeout
++
++        self._state = CircuitBreakerState.CLOSED
++        self._failure_count = 0
++        self._last_failure_time: float | None = None
++        self._lock = threading.RLock()
++
++    @property
++    def state(self) -> CircuitBreakerState:
++        with self._lock:
++            if self._state is CircuitBreakerState.OPEN and self._should_attempt_reset():
++                self._state = CircuitBreakerState.HALF_OPEN
++            return self._state
++
++    @property
++    def failure_count(self) -> int:
++        with self._lock:
++            return self._failure_count
++
++    def allow(self) -> bool:
++        """آیا تماس جدید مجاز است؟"""
++        return self.state is not CircuitBreakerState.OPEN
++
++    def record_success(self) -> None:
++        with self._lock:
++            if self._state is CircuitBreakerState.HALF_OPEN:
++                logger.info("[CircuitBreaker] HALF_OPEN → CLOSED (success)")
++            self._state = CircuitBreakerState.CLOSED
++            self._failure_count = 0
++            self._last_failure_time = None
++
++    def record_failure(self) -> None:
++        with self._lock:
++            self._failure_count += 1
++            self._last_failure_time = time.monotonic()
++            if self._state is CircuitBreakerState.HALF_OPEN:
++                self._state = CircuitBreakerState.OPEN
++                logger.warning("[CircuitBreaker] HALF_OPEN → OPEN (failure after probe)")
++            elif self._failure_count >= self.failure_threshold:
++                if self._state is not CircuitBreakerState.OPEN:
++                    logger.warning(
++                        "[CircuitBreaker] CLOSED → OPEN after %d failures",
++                        self._failure_count,
++                    )
++                self._state = CircuitBreakerState.OPEN
++
++    def _should_attempt_reset(self) -> bool:
++        if self._last_failure_time is None:
++            return False
++        return (time.monotonic() - self._last_failure_time) >= self.recovery_timeout
++
++    def reset(self) -> None:
++        """بازتست دستی (برای tests)."""
++        with self._lock:
++            self._state = CircuitBreakerState.CLOSED
++            self._failure_count = 0
++            self._last_failure_time = None
+diff --git a/v2/agents/technical/data/market_data.py b/v2/agents/technical/data/market_data.py
+new file mode 100644
+index 0000000..adf2c05
+--- /dev/null
++++ b/v2/agents/technical/data/market_data.py
+@@ -0,0 +1,142 @@
++"""
++agents/technical/data/market_data.py
++====================================
++لایه داده بازار (بازساخت Phase 1 — منطق دقیقاً همان نسخه قبل).
++
++- fetch_price_history: دانلود yfinance + ری‌سیمپل 2h/4h از 1h
++- FetchProvenance: ردپای هر fetch (منبع، پریود، تعداد کندل، re-sample، زمان)
++  ← الگوی feed-provenance از AgenticTrading
++- period_for_interval: نگاشت اینترول → پریود دانلود (تک منبع برای fetch و provenance)
++
++نکته monkeypatch: موتور (engine.py) و backtest (walkforward.py) این تابع را
++از طریق attribute ماژول صدا می‌زنند تا جایگزینی در بک‌تست امکان‌پذیر باشد.
++"""
++
++from __future__ import annotations
++
++import logging
++from datetime import datetime, timezone
++from typing import Optional
++
++import pandas as pd
++import yfinance as yf
++from pydantic import BaseModel, Field
++
++logger = logging.getLogger(__name__)
++
++# منبع داده (HistoricalFeeder در بک‌تست آن را "historical_feeder" می‌کند)
++DATA_SOURCE: str = "yfinance"
++
++# نگاشت تایم‌فریم → اینترول yfinance
++TIMEFRAME_MAP = {
++    "M15": "15m",
++    "M30": "30m",
++    "H1": "60m",
++    "H2": "2h",    # resample از 1h
++    "H4": "4h",    # resample از 1h
++    "D1": "1d",
++    "W1": "1wk",
++}
++
++# اینترول‌هایی که باید از 1h ری‌سیمپل شوند
++_RESAMPLE_FROM_1H = {"2h": "2h", "4h": "4h"}
++
++# تایم‌فریم بالاتر (HTF) برای مؤلفه MTF Confluence
++HTF_MAP = {
++    "M15": "60m",
++    "M30": "60m",
++    "H1": "4h",
++    "H2": "4h",
++    "H4": "1d",
++    "D1": "1wk",
++    "W1": "1wk",
++}
++
++
++def period_for_interval(interval: str) -> str:
++    """پریود دانلود yfinance بر اساس اینترول (همان منطق نسخه قبل)."""
++    if interval in _RESAMPLE_FROM_1H:
++        return "3mo"  # برای ری‌سیمپل
++    if interval in ("60m", "1h"):
++        return "3mo"  # 1mo برای H1 کمی بود؛ EMA200 روی 1h به ~۲۰۰ ساعت نیاز دارد
++    if interval == "30m":
++        return "1mo"
++    if interval == "15m":
++        return "5d"
++    if interval == "1wk":
++        return "5y"  # برای EMA200 روی HTF هفتگی کندل کافی لازم است
++    return "1y"
++
++
++class FetchProvenance(BaseModel):
++    """ردپای یک fetch داده (برای decision log و run manifest)."""
++
++    source: str = DATA_SOURCE
++    interval: str
++    period: Optional[str] = None
++    bars: Optional[int] = None
++    resampled_from: Optional[str] = None
++    fetched_at: str = Field(
++        default_factory=lambda: datetime.now(timezone.utc).isoformat()
++    )
++
++
++def resample_from_1h(df: pd.DataFrame, rule: str) -> Optional[pd.DataFrame]:
++    """
++    ری‌سیمپل استاندارد OHLCV از 1h به اینترول هدف (2h/4h).
++    تجمیع: open=first, high=max, low=min, close=last, volume=sum.
++    خروجی: ستون‌های Title Case (Open/High/Low/Close[/Volume]) با DatetimeIndex.
++    """
++    if df is None or df.empty:
++        return None
++    work = df.copy()
++    if isinstance(work.columns, pd.MultiIndex):
++        work.columns = work.columns.get_level_values(0)
++    work.columns = [c.lower() for c in work.columns]
++    agg = {
++        "open": "first",
++        "high": "max",
++        "low": "min",
++        "close": "last",
++        **({"volume": "sum"} if "volume" in work.columns else {}),
++    }
++    resampled = work.resample(rule).agg(agg).dropna(subset=["close"])
++    if resampled.empty:
++        return None
++    resampled.columns = [c.capitalize() for c in resampled.columns]
++    return resampled
++
++
++def fetch_price_history(ticker: str, interval: str = "1d") -> Optional[pd.DataFrame]:
++    """
++    دانلود دیتای قیمت. Phase 7: اینترول‌های 2h/4h که yfinance ندارد
++    از دیتای 1h ری‌سیمپل می‌شوند (OHLC استاندارد).
++
++    باگ قبلی: «4h» مستقیم به yfinance پاس می‌شد که اینترول نامعتبر است
++    و دانلود empty برمی‌گشت — یعنی H4 عملاً همیشه بدون دیتا بود.
++    """
++    # --- مسیر ری‌سیمپل: 2h/4h از 1h ---
++    if interval in _RESAMPLE_FROM_1H:
++        try:
++            data = yf.download(ticker, period="3mo", interval="1h",
++                               progress=False, auto_adjust=True)
++            if data is None or data.empty:
++                return None
++            resampled = resample_from_1h(data, _RESAMPLE_FROM_1H[interval])
++            return resampled
++        except Exception as e:
++            logger.error(f"Failed to resample {interval} from 1h for {ticker}: {e}")
++            return None
++
++    period = period_for_interval(interval)
++    try:
++        data = yf.download(ticker, period=period, interval=interval,
++                           progress=False, auto_adjust=True)
++        if data is None or data.empty:
++            return None
++        if isinstance(data.columns, pd.MultiIndex):
++            data.columns = data.columns.get_level_values(0)
++        return data
++    except Exception as e:
++        logger.error(f"Failed to download price history for {ticker}: {e}")
++        return None
+diff --git a/v2/agents/technical/data/validators.py b/v2/agents/technical/data/validators.py
+new file mode 100644
+index 0000000..713c2bd
+--- /dev/null
++++ b/v2/agents/technical/data/validators.py
+@@ -0,0 +1,117 @@
++"""
++agents/technical/data/validators.py
++===================================
++لایه اعتبارسنجی داده (بازساخت Phase 1).
++
++validate_ohlc یک DataQualityReport برمی‌گرداند — **فقط گزارش است**؛
++در Phase 1 هیچ تأثیری روی score ندارد (اصل: تغییر semantics فقط با backtest).
++هدف: هر snapshot در decision log بداند دیتایی که موتور دیده چه کیفیتی داشته.
++"""
++
++from __future__ import annotations
++
++import logging
++from typing import Optional
++
++import pandas as pd
++from pydantic import BaseModel, Field
++
++logger = logging.getLogger(__name__)
++
++# فاصله‌ای بیش از این مضرب از میانگین فاصله کندل‌ها = «گپ» محتمل
++GAP_MULTIPLIER = 3.0
++
++
++class DataQualityReport(BaseModel):
++    """گزارش کیفیت یک DataFrame OHLCV."""
++
++    ok: bool = True
++    bars: int = 0
++    issues: list[str] = Field(default_factory=list)
++    nan_rows: int = 0
++    invalid_price_rows: int = 0
++    ohlc_inconsistent_rows: int = 0
++    duplicate_timestamps: int = 0
++    gaps: int = 0
++    zero_volume_ratio: Optional[float] = None
++
++
++def validate_ohlc(df: Optional[pd.DataFrame], interval: Optional[str] = None) -> DataQualityReport:
++    """
++    بررسی‌ها (همه فقط report، بدون خطا):
++      - خالی / NaN در OHLC
++      - قیمت نامعتبر (<= 0)
++      - ناسازگاری OHLC (low > min(open,close) یا high < max(open,close))
++      - timestamp تکراری
++      - گپ زمانی (delta > 3x میانگین)
++      - نسبت volume صفر (برای نمادهایی که volume دارند)
++    """
++    report = DataQualityReport()
++    if df is None or df.empty:
++        report.ok = False
++        report.issues.append("empty_dataframe")
++        return report
++
++    report.bars = len(df)
++    cols = [c.lower() for c in df.columns]
++    work = df.copy()
++    work.columns = [c.lower() for c in df.columns]
++
++    ohlc = work[["open", "high", "low", "close"]].dropna() if all(
++        c in cols for c in ("open", "high", "low", "close")
++    ) else None
++
++    # --- NaN در OHLC (rows که هرکدام از ۴ ستون NaN است) ---
++    if all(c in cols for c in ("open", "high", "low", "close")):
++        report.nan_rows = int(work[["open", "high", "low", "close"]].isna().any(axis=1).sum())
++        if report.nan_rows:
++            report.issues.append(f"nan_rows={report.nan_rows}")
++            report.ok = False
++
++    if ohlc is not None and not ohlc.empty:
++        # --- قیمت نامعتبر ---
++        bad_price = (
++            (ohlc < 0).any(axis=1)
++            | (ohlc[["open", "close"]] == 0).any(axis=1)
++        )
++        report.invalid_price_rows = int(bad_price.sum())
++        if report.invalid_price_rows:
++            report.issues.append(f"invalid_price_rows={report.invalid_price_rows}")
++            report.ok = False
++
++        # --- ناسازگاری ساختاری OHLC ---
++        # کندل معتبر: low <= min(open,close) و high >= max(open,close)
++        body_low = ohlc[["open", "close"]].min(axis=1)
++        body_high = ohlc[["open", "close"]].max(axis=1)
++        inconsistent = (ohlc["low"] > body_low) | (ohlc["high"] < body_high)
++        report.ohlc_inconsistent_rows = int(inconsistent.sum())
++        if report.ohlc_inconsistent_rows:
++            report.issues.append(f"ohlc_inconsistent_rows={report.ohlc_inconsistent_rows}")
++            report.ok = False
++
++    # --- timestamp تکراری ---
++    if isinstance(work.index, pd.DatetimeIndex):
++        report.duplicate_timestamps = int(work.index.duplicated().sum())
++        if report.duplicate_timestamps:
++            report.issues.append(f"duplicate_timestamps={report.duplicate_timestamps}")
++
++        # --- گپ زمانی ---
++        deltas = work.index.to_series().diff().dropna()
++        if len(deltas) > 2:
++            median_delta = deltas.median()
++            if median_delta > pd.Timedelta(0):
++                report.gaps = int((deltas > median_delta * GAP_MULTIPLIER).sum())
++                if report.gaps:
++                    report.issues.append(f"time_gaps={report.gaps}")
++
++    # --- volume صفر (فقط اگر ستون volume وجود داشته و همه صفر نباشد) ---
++    if "volume" in cols:
++        vol = pd.to_numeric(work["volume"], errors="coerce")
++        nonzero = int((vol > 0).sum())
++        if nonzero == 0:
++            report.zero_volume_ratio = 1.0
++            report.issues.append("all_volume_zero")
++        elif report.bars:
++            report.zero_volume_ratio = round(float((vol <= 0).sum()) / report.bars, 4)
++
++    return report
+diff --git a/v2/agents/technical/engine.py b/v2/agents/technical/engine.py
+new file mode 100644
+index 0000000..a41bbb9
+--- /dev/null
++++ b/v2/agents/technical/engine.py
+@@ -0,0 +1,272 @@
++"""
++agents/technical/engine.py
++==========================
++موتور deterministic Technical — ترکیب ۱۰ فاکتور (بازساخت Phase 1).
++
++API عمومی:
++    calculate_technical_metrics(ticker, timeframe) -> TechnicalMetrics
++
++نکات ساختاری Phase 1:
++  - هر فاکتور توسط ماژول مستقل خودش محاسبه می‌شود (data/ indicators/
++    structure/ levels/) با **عزل خطا جدا** (در نسخه قبل، Structure و
++    SMC Location یک try/except مشترک داشتند — بهبود آگاهانه در مسیر
++    exception؛ روی دیتای سالم خروجی bit-identical است).
++  - CircuitBreaker روی fetch market data (۵ شکست → ۵ دقیقه مسدود).
++  - FetchProvenance + DataQualityReport در هر response ثبت می‌شوند
++    (برای decision log) — تأثیر روی score: صفر.
++  - ATR و ساختار خام (BOS/CHoCH + age) و فاصله‌های OB/FVG به‌عنوان
++    داده خام اضافه می‌شوند — بدون تغییر semantics امتیازدهی.
++"""
++
++from __future__ import annotations
++
++import logging
++from typing import Optional
++
++import pandas as pd
++
++from .confluence.confidence import compute_confidence
++from .confluence.scorer import aggregate_score
++from .confluence.weights import ENGINE_VERSION
++from .data.circuit_breaker import CircuitBreaker
++from .data import market_data
++from .data.market_data import HTF_MAP, TIMEFRAME_MAP, FetchProvenance
++from .data.validators import validate_ohlc
++from .indicators.momentum import compute_momentum
++from .indicators.patterns import compute_price_action
++from .indicators.trend import compute_trend
++from .indicators.volatility import compute_regime
++from .levels.ote import compute_ote
++from .levels.pdh_pdl import compute_pdh_pdl
++from .models import ComponentScores, TechnicalMetrics
++from .multi_timeframe.alignment import compute_mtf_confluence
++from .structure.bos_choch import compute_structure, DEFAULT_SCORE_MODE
++from .structure.fvg import compute_fvg
++from .structure.liquidity import compute_liquidity
++from .structure.order_blocks import compute_order_blocks
++from .structure.swings import detect_swings
++
++logger = logging.getLogger(__name__)
++
++# --- آستانه‌های عمومی (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++MIN_BARS = 50
++
++# حداقل کندل برای اعتبارسنجی در data quality (report only)
++# (همین MIN_BARS است — فقط برای خوانایی)
++
++# CircuitBreaker بازار (سراسری؛ در tests ریست می‌شود)
++MARKET_DATA_BREAKER = CircuitBreaker(failure_threshold=5, recovery_timeout=300.0)
++
++
++def _clamp(value: float, low: float, high: float) -> float:
++    return max(low, min(high, value))
++
++
++def calculate_technical_metrics(ticker: str, timeframe: str = "D1") -> TechnicalMetrics:
++    """
++    محاسبه‌ی متدیکهای فنی خام و امتیاز ۱۰ مؤلفه‌ی deterministic.
++
++    (همان امضای نسخه قبل — ورودی/خروجی بدون تغییر)
++    """
++    interval = TIMEFRAME_MAP.get(timeframe, "1d")
++    metrics = TechnicalMetrics()
++    metrics.engine_version = ENGINE_VERSION
++
++    # --- 0. Circuit breaker: اگر سرویس داده‌ها می‌شکند، تماس مجدد را نگذاریم ---
++    if not MARKET_DATA_BREAKER.allow():
++        logger.warning(
++            "[Tech] circuit breaker OPEN — skipping market data for %s %s",
++            ticker, timeframe,
++        )
++        metrics.data_error = "circuit_open"
++        return metrics
++
++    data = market_data.fetch_price_history(ticker, interval=interval)
++    if data is None:
++        MARKET_DATA_BREAKER.record_failure()
++        return metrics
++    MARKET_DATA_BREAKER.record_success()
++
++    if len(data) < MIN_BARS:
++        return metrics
++
++    # --- 0.1. Provenance (الگوی AgenticTrading) + Data Quality (report only) ---
++    provenance = FetchProvenance(
++        source=market_data.DATA_SOURCE,
++        interval=interval,
++        period=market_data.period_for_interval(interval),
++        bars=len(data),
++        resampled_from=market_data._RESAMPLE_FROM_1H.get(interval),
++    )
++    metrics.provenance_json = provenance.model_dump_json()
++
++    quality = validate_ohlc(data, interval)
++    metrics.data_quality_json = quality.model_dump_json()
++    if not quality.ok:
++        logger.warning("[Tech] %s %s data quality issues: %s", ticker, timeframe, quality.issues)
++
++    df = data.copy().reset_index(drop=True)
++    df.columns = [c.lower() for c in df.columns]
++    df_dt = data.copy()
++    df_dt.columns = [c.lower() for c in df_dt.columns]
++
++    if "volume" not in df.columns:
++        df["volume"] = 0.0
++    if "volume" not in df_dt.columns:
++        df_dt["volume"] = 0.0
++
++    closes = df["close"].dropna().tolist()
++    current_price = float(closes[-1])
++    metrics.current_price = current_price
++
++    components = ComponentScores()
++
++    # --- 1. Trend (13%) ---
++    try:
++        t = compute_trend(df, current_price)
++        metrics.trend_status = t.status
++        components.trend = t.score
++    except Exception as e:
++        logger.warning(f"Trend calc failed: {e}")
++
++    # --- 2. Momentum (6%) ---
++    try:
++        mom = compute_momentum(df)
++        metrics.rsi = mom.rsi
++        metrics.macd_histogram = mom.macd_histogram
++        components.momentum = mom.score
++    except Exception as e:
++        logger.warning(f"Momentum calc failed: {e}")
++
++    # --- 3. Volatility / Regime (4%) + ATR خام ---
++    try:
++        reg = compute_regime(df)
++        metrics.adx_value = reg.adx
++        metrics.chop_value = reg.chop
++        metrics.atr = reg.atr
++        components.volatility = reg.score
++    except Exception as e:
++        logger.warning(f"Volatility calc failed: {e}")
++
++    # --- 4. Price Action (2%) ---
++    try:
++        pa = compute_price_action(df)
++        components.price_action = pa.score
++        metrics.last_candle_type = pa.label
++    except Exception as e:
++        logger.warning(f"Price Action calc failed: {e}")
++
++    # --- 5. Swings (پایه‌ی Structure/SWC/OTE) ---
++    try:
++        swings = detect_swings(df)
++    except Exception as e:
++        logger.warning(f"Swing detection failed: {e}")
++        swings = None
++
++    # --- 6. Structure (20%) — آخرین BOS ± CHoCH خام (Phase 1) ---
++    try:
++        st = compute_structure(df, swings, score_mode=DEFAULT_SCORE_MODE)
++        components.structure = st.score
++        if st.last_bos_dir is not None:
++            metrics.recent_bos = "Bullish BOS" if st.last_bos_dir == 1 else "Bearish BOS"
++        metrics.structure_raw = st.to_raw_dict()
++    except Exception as e:
++        logger.warning(f"Structure calc failed: {e}")
++
++    # --- 7. SMC Location (15%) — OB ±0.8 / FVG ±0.5 ---
++    fvg_res = None
++    try:
++        fvg_res = compute_fvg(df, current_price)
++        metrics.active_bull_fvg_low = fvg_res.bull_low
++        metrics.active_bull_fvg_high = fvg_res.bull_high
++        metrics.active_bear_fvg_low = fvg_res.bear_low
++        metrics.active_bear_fvg_high = fvg_res.bear_high
++    except Exception as e:
++        logger.warning(f"FVG calc failed: {e}")
++
++    ob_res = None
++    try:
++        if swings is not None and not swings.empty:
++            ob_res = compute_order_blocks(df, swings, current_price)
++            metrics.active_bullish_ob = ob_res.bull_top
++            metrics.active_bearish_ob = ob_res.bear_bottom
++    except Exception as e:
++        logger.warning(f"Order Block calc failed: {e}")
++
++    loc_parts: list[float] = []
++    if fvg_res is not None:
++        loc_parts.append(fvg_res.contribution)
++    if ob_res is not None:
++        loc_parts.append(ob_res.contribution)
++    if loc_parts:
++        components.smc_location = _clamp(sum(loc_parts), -1.0, 1.0)
++
++    # Phase 1: فاصله‌های خام تا سطوح فعال
++    distances: dict[str, float] = {}
++    if fvg_res is not None:
++        if fvg_res.bull_distance_pct is not None:
++            distances["bull_fvg_distance_pct"] = round(fvg_res.bull_distance_pct, 6)
++        if fvg_res.bear_distance_pct is not None:
++            distances["bear_fvg_distance_pct"] = round(fvg_res.bear_distance_pct, 6)
++    if ob_res is not None:
++        if ob_res.bull_distance_pct is not None:
++            distances["bull_ob_distance_pct"] = round(ob_res.bull_distance_pct, 6)
++        if ob_res.bear_distance_pct is not None:
++            distances["bear_ob_distance_pct"] = round(ob_res.bear_distance_pct, 6)
++    if distances:
++        metrics.level_distances = distances
++
++    # --- 8. Liquidity Sweep (12%) ---
++    try:
++        liq = compute_liquidity(df, swings, current_price)
++        components.liquidity_sweep = liq.score
++        metrics.liquidity_sweep_status = liq.status
++    except Exception as e:
++        logger.warning(f"Liquidity sweep calc failed: {e}")
++
++    # --- 9. PDH/PDL (8%) — D1/W1: خودِ دیتا | BTF: fetch روزانه جدا ---
++    try:
++        phl = compute_pdh_pdl(df_dt, current_price)
++        metrics.previous_day_high = phl.pdh
++        metrics.previous_day_low = phl.pdl
++        components.pdh_pdl = phl.score
++        metrics.pdh_pdl_status = phl.status
++    except Exception as e:
++        logger.warning(f"PDH/PDL calc failed: {e}")
++
++    # --- 10. OTE Zone (10%) ---
++    try:
++        ote = compute_ote(df, swings)
++        metrics.current_retracement = ote.retracement
++        components.ote_zone = ote.score
++        metrics.ote_status = ote.status
++    except Exception as e:
++        logger.warning(f"OTE calc failed: {e}")
++
++    # --- 11. MTF Confluence (10%) ---
++    htf_interval = HTF_MAP.get(timeframe)
++    try:
++        htf_data = (
++            market_data.fetch_price_history(ticker, interval=htf_interval)
++            if htf_interval else None
++        )
++        mtf_value, htf_status = compute_mtf_confluence(components.trend, htf_data)
++        if mtf_value is not None:
++            metrics.htf_interval = htf_interval
++            metrics.htf_trend_status = htf_status
++        components.mtf_confluence = mtf_value
++    except Exception as e:
++        logger.warning(f"MTF confluence calc failed: {e}")
++        components.mtf_confluence = None
++
++    # --- تجمیع نهایی (semantics نسخه قبل) ---
++    metrics.components = components
++    metrics.technical_score = aggregate_score(components)
++    if metrics.technical_score is not None:
++        has_ob = bool(metrics.active_bullish_ob or metrics.active_bearish_ob)
++        has_fvg = bool(metrics.active_bull_fvg_low or metrics.active_bear_fvg_low)
++        metrics.technical_confidence = compute_confidence(components, has_ob, has_fvg)
++    else:
++        metrics.technical_confidence = 0.0
++
++    return metrics
+diff --git a/v2/agents/technical/indicators/__init__.py b/v2/agents/technical/indicators/__init__.py
+new file mode 100644
+index 0000000..8125842
+--- /dev/null
++++ b/v2/agents/technical/indicators/__init__.py
+@@ -0,0 +1,5 @@
++# لایه Indicatorها — trend / momentum / volatility / patterns (deterministic)
++
++# رجیستر اکسسور df.ta از pandas-ta-classic — همه ماژول‌های این بسته به آن وابسته‌اند.
++# (در نسخه monolith این import در بالای technical_analyzer بود؛ اینجا تک‌جای آن است.)
++import pandas_ta_classic as pta  # noqa: F401
+diff --git a/v2/agents/technical/indicators/momentum.py b/v2/agents/technical/indicators/momentum.py
+new file mode 100644
+index 0000000..fc77bb9
+--- /dev/null
++++ b/v2/agents/technical/indicators/momentum.py
+@@ -0,0 +1,56 @@
++"""
++agents/technical/indicators/momentum.py
++=======================================
++فاکتور Momentum (6%) — RSI + هیستوگرام MACD.
++منطق امتیازدهی دقیقاً نسخه قبل:
++  MACD hist > 0 و RSI > 55  → +0.8
++  MACD hist < 0 و RSI < 45  → -0.8
++  وگرنه                      → 0.0
++  اگر هرکدام از RSI/MACD در دسترس نباشد → None (Not Evaluated)
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++
++from .utils import last_indicator_value
++
++# --- پارامترهای ثابت (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++RSI_LENGTH = 14
++MACD_FAST = 12
++MACD_SLOW = 26
++MACD_SIGNAL = 9
++RSI_BULL_THRESHOLD = 55.0
++RSI_BEAR_THRESHOLD = 45.0
++
++
++@dataclass
++class MomentumResult:
++    rsi: Optional[float] = None
++    macd_histogram: Optional[float] = None
++    score: Optional[float] = None
++
++
++def compute_momentum(df: pd.DataFrame) -> MomentumResult:
++    """محاسبه فاکتور مومنتوم (RSI + MACD histogram)."""
++    result = MomentumResult()
++    result.rsi = last_indicator_value(df.ta.rsi(length=RSI_LENGTH))
++
++    macd_df = df.ta.macd(fast=MACD_FAST, slow=MACD_SLOW, signal=MACD_SIGNAL)
++    if macd_df is not None and not macd_df.empty:
++        hist_col = [c for c in macd_df.columns if c.startswith("MACDh")]
++        if hist_col and pd.notna(macd_df[hist_col[0]].iloc[-1]):
++            result.macd_histogram = float(macd_df[hist_col[0]].iloc[-1])
++
++    if result.rsi is not None and result.macd_histogram is not None:
++        if result.macd_histogram > 0 and result.rsi > RSI_BULL_THRESHOLD:
++            result.score = 0.8
++        elif result.macd_histogram < 0 and result.rsi < RSI_BEAR_THRESHOLD:
++            result.score = -0.8
++        else:
++            result.score = 0.0
++
++    return result
+diff --git a/v2/agents/technical/indicators/patterns.py b/v2/agents/technical/indicators/patterns.py
+new file mode 100644
+index 0000000..1beda6d
+--- /dev/null
++++ b/v2/agents/technical/indicators/patterns.py
+@@ -0,0 +1,66 @@
++"""
++agents/technical/indicators/patterns.py
++=======================================
++فاکتور Price Action (2%) — الگوهای کندل استاندارد (TA-Lib CDL).
++
++۱۰ الگوی پرارزش؛ امتیاز: یک الگو ±0.5 | هر الگوی هم‌جهت اضافه +0.25 (سقف ±1.0).
++فقط **آخرین کندل** بررسی می‌شود (همان نسخه قبل).
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass, field
++from typing import Optional
++
++import pandas as pd
++
++# لیست الگوهای فعال (دقیقاً نسخه قبل)
++CDL_PATTERNS = [
++    "engulfing", "hammer", "shootingstar", "morningstar", "eveningstar",
++    "piercing", "darkcloudcover", "3whitesoldiers", "3blackcrows", "harami",
++]
++
++SCORE_PER_EXTRA_PATTERN = 0.25
++BASE_PATTERN_SCORE = 0.5
++
++
++@dataclass
++class PriceActionResult:
++    bull_patterns: list[str] = field(default_factory=list)
++    bear_patterns: list[str] = field(default_factory=list)
++    net: int = 0
++    score: Optional[float] = None
++    label: Optional[str] = None
++
++
++def compute_price_action(df: pd.DataFrame) -> PriceActionResult:
++    """تشخیص الگوهای کندل آخرین بار و امتیازدهی خالص."""
++    result = PriceActionResult()
++    pats_df = df.ta.cdl_pattern(name=CDL_PATTERNS)
++    if pats_df is None or pats_df.empty:
++        return result
++
++    last_row = pats_df.iloc[-1]
++    bull_hits, bear_hits = [], []
++    for col in pats_df.columns:
++        val = last_row[col]
++        if pd.notna(val) and val > 0:
++            bull_hits.append(col.replace("CDL_", "").title())
++        elif pd.notna(val) and val < 0:
++            bear_hits.append(col.replace("CDL_", "").title())
++
++    result.bull_patterns = bull_hits
++    result.bear_patterns = bear_hits
++    result.net = len(bull_hits) - len(bear_hits)
++
++    if result.net > 0:
++        result.score = min(1.0, BASE_PATTERN_SCORE + SCORE_PER_EXTRA_PATTERN * (result.net - 1))
++        result.label = "Bullish: " + ", ".join(bull_hits)
++    elif result.net < 0:
++        result.score = -min(1.0, BASE_PATTERN_SCORE + SCORE_PER_EXTRA_PATTERN * (abs(result.net) - 1))
++        result.label = "Bearish: " + ", ".join(bear_hits)
++    else:
++        result.score = 0.0
++        result.label = "Neutral"
++
++    return result
+diff --git a/v2/agents/technical/indicators/trend.py b/v2/agents/technical/indicators/trend.py
+new file mode 100644
+index 0000000..71aef64
+--- /dev/null
++++ b/v2/agents/technical/indicators/trend.py
+@@ -0,0 +1,66 @@
++"""
++agents/technical/indicators/trend.py
++====================================
++فاکتور Trend (13%) — EMA50/200 + تأیید Supertrend.
++منطق امتیازدهی دقیقاً نسخه قبل:
++  هم‌راستایی EMA با Supertrend → 0.8 | ناهم‌راستایی → 0.4 (ترند ضعیف‌تر)
++  Ranging (EMAها/قیمت هم‌راستا نیستند) → 0.0 | داده کافی نیست → None
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++
++from .utils import last_indicator_value
++
++# --- پارامترهای ثابت (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++EMA_FAST = 50
++EMA_SLOW = 200
++SUPERTREND_LENGTH = 10
++SUPERTREND_MULTIPLIER = 3.0
++
++
++@dataclass
++class TrendResult:
++    ema50: Optional[float] = None
++    ema200: Optional[float] = None
++    supertrend_dir: int = 0
++    direction: int = 0            # 1 / -1 / 0
++    status: Optional[str] = None
++    score: Optional[float] = None
++
++
++def compute_trend(df: pd.DataFrame, current_price: float) -> TrendResult:
++    """محاسبه فاکتور روند بر پایه EMA50/200 + Supertrend."""
++    result = TrendResult()
++    result.ema50 = last_indicator_value(df.ta.ema(length=EMA_FAST))
++    result.ema200 = last_indicator_value(df.ta.ema(length=EMA_SLOW))
++
++    st_df = df.ta.supertrend(length=SUPERTREND_LENGTH, multiplier=SUPERTREND_MULTIPLIER)
++    if st_df is not None and not st_df.empty:
++        st_dir_col = [c for c in st_df.columns if c.startswith("SUPERTd")]
++        if st_dir_col and pd.notna(st_df[st_dir_col[0]].iloc[-1]):
++            result.supertrend_dir = int(st_df[st_dir_col[0]].iloc[-1])
++
++    if result.ema50 and result.ema200:
++        if result.ema50 > result.ema200 and current_price > result.ema50:
++            result.direction = 1
++        elif result.ema50 < result.ema200 and current_price < result.ema50:
++            result.direction = -1
++        else:
++            result.direction = 0
++
++        if result.direction == 0:
++            result.status = "Ranging"
++            result.score = 0.0
++        elif result.supertrend_dir == result.direction:
++            result.status = ("Uptrend" if result.direction == 1 else "Downtrend") + " (Supertrend confirmed)"
++            result.score = 0.8
++        else:
++            result.status = ("Uptrend" if result.direction == 1 else "Downtrend") + " (Supertrend divergence)"
++            result.score = 0.4 * result.direction
++
++    return result
+diff --git a/v2/agents/technical/indicators/utils.py b/v2/agents/technical/indicators/utils.py
+new file mode 100644
+index 0000000..28e37c5
+--- /dev/null
++++ b/v2/agents/technical/indicators/utils.py
+@@ -0,0 +1,30 @@
++"""
++agents/technical/indicators/utils.py
++====================================
++Helpers مشترک برای خروجی pandas-ta.
++"""
++
++from __future__ import annotations
++
++from typing import Optional
++
++import pandas as pd
++
++
++def last_indicator_value(out) -> Optional[float]:
++    """
++    آخرین مقدار معتبر از خروجی pandas-ta.
++
++    pandas-ta در دیتای کم‌عمق گاهی به‌جای Series یک DataFrame تمام-NaN
++    برمی‌گرداند (مثلاً EMA200 روی HTF هفتگی با <۲۰۰ کندل) که .iloc[-1]
++    آن Series می‌شود و pd.notna روی آن کرش می‌کند — این helper هر دو
++    حالت را امن هندل می‌کند.
++    """
++    if out is None:
++        return None
++    if isinstance(out, pd.DataFrame):
++        if out.empty:
++            return None
++        out = out.iloc[:, 0]
++    val = out.iloc[-1]
++    return float(val) if pd.notna(val) else None
+diff --git a/v2/agents/technical/indicators/volatility.py b/v2/agents/technical/indicators/volatility.py
+new file mode 100644
+index 0000000..da2f5b4
+--- /dev/null
++++ b/v2/agents/technical/indicators/volatility.py
+@@ -0,0 +1,74 @@
++"""
++agents/technical/indicators/volatility.py
++=========================================
++فاکتور Volatility/Regime (4%) — ADX + CHOP (+ ATR به‌عنوان داده خام Phase 1).
++
++منطق امتیازدهی دقیقاً نسخه قبل:
++  ADX > 25 → +0.5 | ADX < 20 → -0.5
++  CHOP < 38.2 → +0.3 | CHOP > 61.8 → -0.3
++  جمع clamp روی [-0.8, 0.8] | اگر هر دو None → None
++
++ATR(14) در Phase 1 فقط به‌عنوان **داده خام** ثبت می‌شود (تأثیر روی score: صفر).
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++
++from .utils import last_indicator_value
++
++# --- پارامترهای ثابت (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++ADX_LENGTH = 14
++CHOP_LENGTH = 14
++ATR_LENGTH = 14
++ADX_STRONG = 25.0
++ADX_CHOPPY = 20.0
++CHOP_TRENDING = 38.2
++CHOP_CHOPPY = 61.8
++REGIME_SCORE_BOUND = 0.8
++
++
++@dataclass
++class RegimeResult:
++    adx: Optional[float] = None
++    chop: Optional[float] = None
++    atr: Optional[float] = None
++    score: Optional[float] = None
++
++
++def compute_regime(df: pd.DataFrame) -> RegimeResult:
++    """محاسبه فاکتور رژیم بازار (ADX + CHOP) و ATR خام."""
++    result = RegimeResult()
++
++    adx_df = df.ta.adx(length=ADX_LENGTH)
++    if adx_df is not None and not adx_df.empty:
++        adx_col = [c for c in adx_df.columns if c.startswith("ADX")]
++        if adx_col and pd.notna(adx_df[adx_col[0]].iloc[-1]):
++            result.adx = float(adx_df[adx_col[0]].iloc[-1])
++
++    result.chop = last_indicator_value(df.ta.chop(length=CHOP_LENGTH))
++
++    # ATR — داده خام Phase 1 (بدون تأثیر روی score)
++    try:
++        result.atr = last_indicator_value(df.ta.atr(length=ATR_LENGTH))
++    except Exception:
++        result.atr = None
++
++    regime_score = 0.0
++    if result.adx is not None:
++        if result.adx > ADX_STRONG:
++            regime_score += 0.5   # Strong regime
++        elif result.adx < ADX_CHOPPY:
++            regime_score -= 0.5   # Chop risk
++    if result.chop is not None:
++        if result.chop < CHOP_TRENDING:
++            regime_score += 0.3   # Trending cleanly
++        elif result.chop > CHOP_CHOPPY:
++            regime_score -= 0.3   # Choppy
++    if result.adx is not None or result.chop is not None:
++        result.score = max(-REGIME_SCORE_BOUND, min(REGIME_SCORE_BOUND, regime_score))
++
++    return result
+diff --git a/v2/agents/technical/levels/__init__.py b/v2/agents/technical/levels/__init__.py
+new file mode 100644
+index 0000000..607c445
+--- /dev/null
++++ b/v2/agents/technical/levels/__init__.py
+@@ -0,0 +1 @@
++# لایه سطوح کلیدی — PDH/PDL و OTE
+diff --git a/v2/agents/technical/levels/ote.py b/v2/agents/technical/levels/ote.py
+new file mode 100644
+index 0000000..40c01ec
+--- /dev/null
++++ b/v2/agents/technical/levels/ote.py
+@@ -0,0 +1,72 @@
++"""
++agents/technical/levels/ote.py
++==============================
++فاکتور OTE Zone (10%) — Optimal Trade Entry (ریتراس 61.8–78.6%).
++
++منطق امتیازدهی دقیقاً نسخه قبل:
++  داخل OTE روی leg صعودی → +0.8 | روی leg نزولی → -0.8
++  خارج OTE               → 0.0
++"""
++
++from __future__ import annotations
++
++import logging
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++from smartmoneyconcepts import smc
++
++logger = logging.getLogger(__name__)
++
++# --- پارامترهای ثابت (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++OTE_MIN_PCT = 61.8
++OTE_MAX_PCT = 78.6
++OTE_SCORE = 0.8
++
++
++@dataclass
++class OTEResult:
++    retracement: Optional[float] = None
++    leg_dir: Optional[int] = None
++    score: Optional[float] = None
++    status: Optional[str] = None
++
++
++def compute_ote(df: pd.DataFrame, swings: Optional[pd.DataFrame]) -> OTEResult:
++    """تحلیل ریتراس فعلی نسبت به leg آخر (Fibonacci OTE)."""
++    result = OTEResult()
++    if swings is None or swings.empty:
++        return result
++
++    ret_df = smc.retracements(df, swings)
++    if ret_df is None or ret_df.empty or "Direction" not in ret_df.columns:
++        return result
++
++    ret_valid = ret_df.dropna(subset=["Direction"])
++    if ret_valid.empty:
++        return result
++
++    last_ret = ret_valid.iloc[-1]
++    if pd.notna(last_ret.get("CurrentRetracement%")):
++        result.retracement = float(last_ret["CurrentRetracement%"])
++    result.leg_dir = int(last_ret["Direction"])
++
++    if result.retracement is not None and OTE_MIN_PCT <= result.retracement <= OTE_MAX_PCT:
++        if result.leg_dir == 1:
++            result.score = OTE_SCORE
++            result.status = f"In bullish OTE zone ({result.retracement:.1f}% retracement of up-leg)"
++        else:
++            result.score = -OTE_SCORE
++            result.status = f"In bearish OTE zone ({result.retracement:.1f}% retracement of down-leg)"
++    else:
++        result.score = 0.0
++        if result.retracement is not None:
++            result.status = (
++                f"Outside OTE ({result.retracement:.1f}% retracement, "
++                f"leg={'bullish' if result.leg_dir == 1 else 'bearish'})"
++            )
++        else:
++            result.status = "N/A"
++
++    return result
+diff --git a/v2/agents/technical/levels/pdh_pdl.py b/v2/agents/technical/levels/pdh_pdl.py
+new file mode 100644
+index 0000000..f9346d8
+--- /dev/null
++++ b/v2/agents/technical/levels/pdh_pdl.py
+@@ -0,0 +1,81 @@
++"""
++agents/technical/levels/pdh_pdl.py
++==================================
++فاکتور PDH/PDL (8%) — سطوح روز قبل.
++
++منطق امتیازدهی دقیقاً نسخه قبل (elif زنجیره‌ای):
++  شکست اخیر PDH (و PDL نشکسته)  → +0.6 «Broke above Previous Day High»
++  شکست اخیر PDL (و PDH نشکسته)  → -0.6 «Broke below Previous Day Low»
++  قیمت روی PDL (±0.1% از قیمت)   → +0.4 «At Previous Day Low support»
++  قیمت روی PDH (±0.1% از قیمت)   → -0.4 «At Previous Day High resistance»
++  وگرنه                          → 0.0  «Inside previous day range»
++
++ستون‌های smc.previous_high_low: PreviousHigh, PreviousLow, BrokenHigh, BrokenLow.
++»شکست اخیر« = پرچم BrokenHigh/BrokenLow در ۳ ردیف آخر خروجی کتابخانه.
++"""
++
++from __future__ import annotations
++
++import logging
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++from smartmoneyconcepts import smc
++
++logger = logging.getLogger(__name__)
++
++# --- پارامترهای ثابت (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++PDH_PDL_TOL_PCT = 0.001   # ~۰.۱٪ فاصله از سطح (مطلق، روی قیمت فعلی)
++BREAK_LOOKBACK = 3
++BREAK_SCORE = 0.6
++SIT_SCORE = 0.4
++TIMEFRAME_DAILY = "1D"
++
++
++@dataclass
++class PDHPDLResult:
++    pdh: Optional[float] = None
++    pdl: Optional[float] = None
++    score: Optional[float] = None
++    status: Optional[str] = None
++
++
++def compute_pdh_pdl(df_daily: pd.DataFrame, current_price: float) -> PDHPDLResult:
++    """
++    شناسایی PDH/PDL.
++    df_daily: دیتای خام (DatetimeIndex) — برای H1/15m دیتای روزانه جدا fetch
++    می‌شود، برای D1/W1 خودِ دیتا روزانه است.
++    """
++    result = PDHPDLResult()
++    phl_df = smc.previous_high_low(df_daily, time_frame=TIMEFRAME_DAILY)
++    if phl_df is None or phl_df.empty:
++        return result
++
++    last_phl = phl_df.iloc[-1]
++    if pd.notna(last_phl["PreviousHigh"]):
++        result.pdh = float(last_phl["PreviousHigh"])
++    if pd.notna(last_phl["PreviousLow"]):
++        result.pdl = float(last_phl["PreviousLow"])
++
++    recent_break_high = bool(phl_df["BrokenHigh"].tail(BREAK_LOOKBACK).fillna(0).sum() > 0)
++    recent_break_low = bool(phl_df["BrokenLow"].tail(BREAK_LOOKBACK).fillna(0).sum() > 0)
++    tol = current_price * PDH_PDL_TOL_PCT
++
++    if recent_break_high and not recent_break_low:
++        result.score = BREAK_SCORE
++        result.status = f"Broke above Previous Day High ({result.pdh})"
++    elif recent_break_low and not recent_break_high:
++        result.score = -BREAK_SCORE
++        result.status = f"Broke below Previous Day Low ({result.pdl})"
++    elif result.pdl is not None and abs(current_price - result.pdl) <= tol:
++        result.score = SIT_SCORE
++        result.status = f"At Previous Day Low support ({result.pdl})"
++    elif result.pdh is not None and abs(current_price - result.pdh) <= tol:
++        result.score = -SIT_SCORE
++        result.status = f"At Previous Day High resistance ({result.pdh})"
++    else:
++        result.score = 0.0
++        result.status = "Inside previous day range"
++
++    return result
+diff --git a/v2/agents/technical/llm_guard.py b/v2/agents/technical/llm_guard.py
+new file mode 100644
+index 0000000..dd83573
+--- /dev/null
++++ b/v2/agents/technical/llm_guard.py
+@@ -0,0 +1,70 @@
++"""
++agents/technical/llm_guard.py
++=============================
++LLM Guard — مرز امنیتی برای خروجی LLM (الگوی LLMTradingDecision از AgenticTrading).
++
++قاعده طراحی: LLM فقط «روایت» می‌سازد؛ امتیازها deterministic هستند. Guard
++مطمئن می‌شود روایت LLM با سیگنال deterministic **تناقض آشکار** ندارد و
++خروجی‌اش به شکل صحیح برگشته.
++
++خروجی: GuardResult(ok, reasons) —
++  ok=False  → وضعیت "guard_flagged" در گزارش + log warning
++              (Phase 1: با یک retry؛ اگر باز هم شد، روایت deterministic جایگزین می‌شود)
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass, field
++
++# --- محدودیت‌های سخت (به‌جای magic numbers) ---
++MAX_NARRATIVE_LEN = 500
++MIN_NARRATIVE_LEN = 10
++
++# کلمات کلیدی خلاف جهت (هرکدام در روایت = تناقض آشکار)
++BULLISH_MARKERS = ("bullish", "buy", "long", "خرید", "صعودی")
++BEARISH_MARKERS = ("bearish", "sell", "short", "فروش", "نزولی")
++
++
++@dataclass
++class GuardResult:
++    ok: bool = True
++    reasons: list[str] = field(default_factory=list)
++
++
++def validate_narrative(strategy: str, reasoning: str, direction: int) -> GuardResult:
++    """
++    اعتبارسنجی روایت LLM در برابر سیگنال deterministic.
++    direction: +1 (BULLISH) / -1 (BEARISH) / 0 (NEUTRAL)
++    """
++    result = GuardResult()
++    strategy = (strategy or "").strip()
++    reasoning = (reasoning or "").strip()
++
++    if not strategy or not reasoning:
++        result.ok = False
++        result.reasons.append("empty_narrative")
++        return result
++
++    if len(strategy) > MAX_NARRATIVE_LEN:
++        result.ok = False
++        result.reasons.append("strategy_too_long")
++    if len(reasoning) > MAX_NARRATIVE_LEN:
++        result.ok = False
++        result.reasons.append("reasoning_too_long")
++    if len(strategy) < MIN_NARRATIVE_LEN or len(reasoning) < MIN_NARRATIVE_LEN:
++        result.ok = False
++        result.reasons.append("narrative_too_short")
++
++    # --- تناقض جهت: متن روایت vs direction deterministic ---
++    text = (strategy + " " + reasoning).lower()
++    bullish_hits = sum(1 for m in BULLISH_MARKERS if m in text)
++    bearish_hits = sum(1 for m in BEARISH_MARKERS if m in text)
++
++    if direction == 1 and bearish_hits > bullish_hits:
++        result.ok = False
++        result.reasons.append("narrative_contradicts_bullish_signal")
++    elif direction == -1 and bullish_hits > bearish_hits:
++        result.ok = False
++        result.reasons.append("narrative_contradicts_bearish_signal")
++
++    return result
+diff --git a/v2/agents/technical/models.py b/v2/agents/technical/models.py
+new file mode 100644
+index 0000000..4b46996
+--- /dev/null
++++ b/v2/agents/technical/models.py
+@@ -0,0 +1,72 @@
++"""
++agents/technical/models.py
++==========================
++Pydantic Models موتور Technical (بازساخت Phase 1).
++
++- ComponentScores: امتیاز ۱۰ فاکتور [-1, 1]؛ None = Not Evaluated
++- TechnicalMetrics: داده‌های خام + امتیازهای مؤلفه + score/confidence نهایی
++
++فیلد‌های Phase 1 (افزایشی، پیش‌فرض None):
++  atr / structure_raw / level_distances / data_error /
++  data_quality_json / provenance_json / engine_version
++"""
++
++from __future__ import annotations
++
++from typing import Any, Dict, Optional
++
++from pydantic import BaseModel, Field
++
++
++class ComponentScores(BaseModel):
++    """Scores for each of the 10 technical factors [-1, 1]. None if not evaluated."""
++    structure: Optional[float] = None
++    trend: Optional[float] = None
++    smc_location: Optional[float] = None
++    mtf_confluence: Optional[float] = None
++    momentum: Optional[float] = None
++    volatility: Optional[float] = None
++    price_action: Optional[float] = None
++    liquidity_sweep: Optional[float] = None
++    pdh_pdl: Optional[float] = None
++    ote_zone: Optional[float] = None
++
++
++class TechnicalMetrics(BaseModel):
++    """Full raw technical data and component scores."""
++    current_price: Optional[float] = None
++    technical_score: Optional[float] = None  # Final aggregated score [-1, 1]
++    technical_confidence: Optional[float] = None  # Reliability [0, 1]
++    components: ComponentScores = Field(default_factory=ComponentScores)
++
++    # Raw Data for LLM narrative
++    trend_status: Optional[str] = None
++    adx_value: Optional[float] = None
++    recent_bos: Optional[str] = None
++    active_bullish_ob: Optional[float] = None
++    active_bearish_ob: Optional[float] = None
++    active_bull_fvg_low: Optional[float] = None
++    active_bull_fvg_high: Optional[float] = None
++    active_bear_fvg_low: Optional[float] = None
++    active_bear_fvg_high: Optional[float] = None
++    rsi: Optional[float] = None
++    macd_histogram: Optional[float] = None
++    last_candle_type: Optional[str] = None
++    htf_interval: Optional[str] = None
++    htf_trend_status: Optional[str] = None
++    liquidity_sweep_status: Optional[str] = None
++    previous_day_high: Optional[float] = None
++    previous_day_low: Optional[float] = None
++    pdh_pdl_status: Optional[str] = None
++    current_retracement: Optional[float] = None
++    ote_status: Optional[str] = None
++    chop_value: Optional[float] = None
++
++    # --- Phase 1: فیلد‌های افزایشی (مقادیر خام جدید + حسابرسی) ---
++    atr: Optional[float] = None
++    structure_raw: Optional[Dict[str, Any]] = None       # BOS/CHoCH + age + sequence + swing count
++    level_distances: Optional[Dict[str, Any]] = None     # فاصله٪ تا OB/FVG فعال
++    data_error: Optional[str] = None                     # مثلاً "circuit_open"
++    data_quality_json: Optional[str] = None              # DataQualityReport (JSON)
++    provenance_json: Optional[str] = None                # FetchProvenance (JSON)
++    engine_version: Optional[str] = None
+diff --git a/v2/agents/technical/mtf_scanner.py b/v2/agents/technical/mtf_scanner.py
+index a0cc8c7..9fb62be 100644
+--- a/v2/agents/technical/mtf_scanner.py
++++ b/v2/agents/technical/mtf_scanner.py
+@@ -1,204 +1,38 @@
+ """
+-agents/technical/mtf_scanner.py
+-================================
+-Phase 7 — لایه اسکن چند تایم‌فریمی (کاملاً deterministic، صفر کال LLM).
++agents/technical/mtf_scanner.py — فکس سازگاری (Phase 1)
++========================================================
++پیاده‌سازی: agents/technical/multi_timeframe/ (scanner.py + alignment.py).
+ 
+-هفت تایم‌فریم را با همان calculate_technical_metrics موجود امتیاز می‌کند و
+-یک MTFMatrix می‌سازد: جهت هر تایم‌فریم + bias کلی از لایه HTF.
+-
+-نقش‌ها (top-down کلاسیک):
+-  HTF (W1, D1)      → جهت مجاز (bias)
+-  MTF (H4, H2)      → ساختار و زون‌ها
+-  LTF (H1, M30, M15)→ تریگر و اجرا
+-
+-هزینه: فقط دانلود yfinance. هیچ LLMای در این فایل وجود ندارد.
++    from agents.technical.mtf_scanner import scan_timeframes
++    m = scan_timeframes("EURUSD=X")
+ """
+ 
+-from __future__ import annotations
+-
+-import logging
+-from dataclasses import dataclass, field
+-from datetime import datetime
+-from typing import Optional
+-
+-from agents.technical.technical_analyzer import calculate_technical_metrics
+-
+-logger = logging.getLogger(__name__)
+-
+-# ===========================================================================
+-# CONFIG
+-# ===========================================================================
+-
+-DEFAULT_TIMEFRAMES: list[str] = ["W1", "D1", "H4", "H2", "H1", "M30", "M15"]
+-
+-TIMEFRAME_ROLES: dict[str, str] = {
+-    "W1": "HTF", "D1": "HTF",
+-    "H4": "MTF", "H2": "MTF",
+-    "H1": "LTF", "M30": "LTF", "M15": "LTF",
+-}
+-
+-# |score| کمتر از این یعنی خنثی
+-DIRECTION_DEADBAND: float = 0.15
+-
+-# وزن D1 و W1 در bias کلی
+-HTF_WEIGHTS: dict[str, float] = {"D1": 0.6, "W1": 0.4}
+-
+-
+-# ===========================================================================
+-# Models
+-# ===========================================================================
+-
+-@dataclass
+-class TimeframeScore:
+-    """نتیجه یک تایم‌فریم."""
+-    timeframe: str
+-    role: str
+-    valid: bool = False
+-    direction: int = 0                    # 1 / -1 / 0
+-    score: float = 0.0                    # [-1, 1]
+-    confidence: float = 0.0               # [0, 1]
+-    price: Optional[float] = None
+-    nearest_support: Optional[float] = None      # OB بولیش فعال
+-    nearest_resistance: Optional[float] = None   # OB بیرش فعال
+-    adx: Optional[float] = None
+-    chop: Optional[float] = None
+-    trend_status: Optional[str] = None
+-    error: Optional[str] = None
+-
+-
+-@dataclass
+-class MTFMatrix:
+-    """تصویر کامل یک نماد روی همه تایم‌فریم‌ها."""
+-    ticker: str
+-    computed_at: str
+-    scores: dict[str, TimeframeScore] = field(default_factory=dict)
+-    htf_bias: int = 0                     # 1=صعودی، -1=نزولی، 0=خنثی/متضاد
+-    htf_bias_label: str = "Neutral"
+-
+-    def valid_timeframes(self) -> list[str]:
+-        return [tf for tf, s in self.scores.items() if s.valid]
+-
+-    def strongest(self, roles: tuple[str, ...] = ("MTF", "LTF")) -> Optional[TimeframeScore]:
+-        """قوی‌ترین سیگنال معتبر در نقش‌های داده‌شده (برای narrative LLM)."""
+-        candidates = [s for s in self.scores.values()
+-                      if s.valid and s.role in roles and s.direction != 0]
+-        if not candidates:
+-            return None
+-        return max(candidates, key=lambda s: abs(s.score) * s.confidence)
+-
+-
+-# ===========================================================================
+-# Core
+-# ===========================================================================
+-
+-def _score_one(ticker: str, timeframe: str) -> TimeframeScore:
+-    role = TIMEFRAME_ROLES[timeframe]
+-    try:
+-        m = calculate_technical_metrics(ticker, timeframe=timeframe)
+-    except Exception as exc:
+-        logger.warning(f"[MTF] {ticker} {timeframe} failed: {exc}")
+-        return TimeframeScore(timeframe=timeframe, role=role, error=str(exc))
+-
+-    if m is None or m.current_price is None or m.technical_score is None:
+-        return TimeframeScore(timeframe=timeframe, role=role, error="no data")
+-
+-    score = float(m.technical_score)
+-    direction = 1 if score > DIRECTION_DEADBAND else (-1 if score < -DIRECTION_DEADBAND else 0)
+-
+-    return TimeframeScore(
+-        timeframe=timeframe,
+-        role=role,
+-        valid=True,
+-        direction=direction,
+-        score=round(score, 4),
+-        confidence=round(float(m.technical_confidence or 0.0), 4),
+-        price=float(m.current_price),
+-        nearest_support=m.active_bullish_ob,
+-        nearest_resistance=m.active_bearish_ob,
+-        adx=m.adx_value,
+-        chop=m.chop_value,
+-        trend_status=m.trend_status,
+-    )
+-
+-
+-def _compute_htf_bias(scores: dict[str, TimeframeScore]) -> tuple[int, str]:
+-    """
+-    bias کلی از لایه HTF:
+-      - D1 و W1 معتبر و هم‌جهت (غیرصفر) → همان جهت
+-      - متضاد → خنثی (مixed)
+-      - فقط یکی معتبر → همان یکی
+-    """
+-    d1 = scores.get("D1")
+-    w1 = scores.get("W1")
+-
+-    dirs = []
+-    if d1 and d1.valid:
+-        dirs.append(("D1", d1.direction, HTF_WEIGHTS["D1"]))
+-    if w1 and w1.valid:
+-        dirs.append(("W1", w1.direction, HTF_WEIGHTS["W1"]))
+-
+-    if not dirs:
+-        return 0, "Neutral (no HTF data)"
+-
+-    nonzero = [(name, d, w) for name, d, w in dirs if d != 0]
+-    if len(nonzero) == 2 and nonzero[0][1] != nonzero[1][1]:
+-        return 0, f"Mixed (D1={nonzero[0][1]:+d} vs W1={nonzero[1][1]:+d})"
+-
+-    if nonzero:
+-        d = nonzero[0][1]
+-        label = "Bullish" if d == 1 else "Bearish"
+-        names = "+".join(n for n, _, _ in nonzero)
+-        return d, f"{label} ({names})"
+-
+-    return 0, "Neutral"
+-
+-
+-def scan_timeframes(
+-    ticker: str,
+-    timeframes: Optional[list[str]] = None,
+-) -> MTFMatrix:
+-    """
+-    اسکن کامل همه تایم‌فریم‌ها برای یک تیکر. صفر کال LLM.
+-    تایم‌فریم‌های ناموفق skip می‌شوند و ماتریس با بقیه ساخته می‌شود.
+-    """
+-    tfs = timeframes or DEFAULT_TIMEFRAMES
+-    matrix = MTFMatrix(ticker=ticker, computed_at=datetime.utcnow().isoformat())
+-
+-    for tf in tfs:
+-        matrix.scores[tf] = _score_one(ticker, tf)
+-        s = matrix.scores[tf]
+-        if s.valid:
+-            logger.info(
+-                f"[MTF] {ticker} {tf}: dir={s.direction:+d} score={s.score:+.2f} "
+-                f"conf={s.confidence:.2f}"
+-            )
+-        else:
+-            logger.info(f"[MTF] {ticker} {tf}: invalid ({s.error})")
+-
+-    matrix.htf_bias, matrix.htf_bias_label = _compute_htf_bias(matrix.scores)
+-    logger.info(f"[MTF] {ticker} HTF bias: {matrix.htf_bias_label}")
+-    return matrix
+-
+-
+-# ===========================================================================
+-# CLI Smoke Test
+-# ===========================================================================
+-if __name__ == "__main__":
+-    import argparse
+-    logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-7s | %(message)s")
+-
+-    parser = argparse.ArgumentParser(description="MTF Scanner smoke test (no LLM)")
+-    parser.add_argument("--ticker", default="EURUSD=X")
+-    parser.add_argument("--timeframes", nargs="+", default=None)
+-    args = parser.parse_args()
+-
+-    m = scan_timeframes(args.ticker, args.timeframes)
+-    print("\n" + "=" * 56)
+-    print(f"MTF Matrix: {args.ticker} | HTF bias: {m.htf_bias_label}")
+-    print("=" * 56)
+-    for tf, s in m.scores.items():
+-        if s.valid:
+-            print(f"  {tf:>4} [{s.role}] dir={s.direction:+d} score={s.score:+.2f} "
+-                  f"conf={s.confidence:.2f} S={s.nearest_support} R={s.nearest_resistance}")
+-        else:
+-            print(f"  {tf:>4} [{s.role}] INVALID — {s.error}")
++from agents.technical.multi_timeframe.alignment import (
++    HTF_BIAS_DEADBAND,
++    HTF_WEIGHTS,
++    compute_htf_bias,
++    compute_mtf_confluence,
++)
++from agents.technical.multi_timeframe.scanner import (
++    DEFAULT_TIMEFRAMES,
++    MTFMatrix,
++    TIMEFRAME_ROLES,
++    TimeframeScore,
++    _score_one,
++    scan_timeframes,
++)
++from agents.technical.signals.technical_signal import DIRECTION_DEADBAND
++
++__all__ = [
++    "scan_timeframes",
++    "MTFMatrix",
++    "TimeframeScore",
++    "DEFAULT_TIMEFRAMES",
++    "TIMEFRAME_ROLES",
++    "DIRECTION_DEADBAND",
++    "HTF_WEIGHTS",
++    "HTF_BIAS_DEADBAND",
++    "compute_htf_bias",
++    "compute_mtf_confluence",
++    "_score_one",
++]
+diff --git a/v2/agents/technical/multi_timeframe/__init__.py b/v2/agents/technical/multi_timeframe/__init__.py
+new file mode 100644
+index 0000000..ad2d53c
+--- /dev/null
++++ b/v2/agents/technical/multi_timeframe/__init__.py
+@@ -0,0 +1,32 @@
++"""
++لایه Multi-Timeframe (phase 7 — بدون LLM).
++
++از این بسته می‌توان مستقیم import کرد:
++    from agents.technical.multi_timeframe import scan_timeframes, MTFMatrix
++
++نکته ساختاری: این __init__ به‌صورت lazy (PEP 562) است تا import زیرمجموعه‌ی
++`alignment` (که engine در لحظه import استفاده می‌کند) زنجیره‌ی دایره‌ای
++engine → multi_timeframe → scanner → engine نسازد.
++"""
++
++from typing import Any
++
++_ALIGNMENT_NAMES = {
++    "compute_htf_bias", "compute_mtf_confluence", "HTF_WEIGHTS", "HTF_BIAS_DEADBAND",
++}
++_SCANNER_NAMES = {
++    "DEFAULT_TIMEFRAMES", "MTFMatrix", "TIMEFRAME_ROLES", "TimeframeScore",
++    "scan_timeframes",
++}
++
++__all__ = sorted(_ALIGNMENT_NAMES | _SCANNER_NAMES)
++
++
++def __getattr__(name: str) -> Any:
++    if name in _ALIGNMENT_NAMES:
++        from . import alignment
++        return getattr(alignment, name)
++    if name in _SCANNER_NAMES:
++        from . import scanner
++        return getattr(scanner, name)
++    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+diff --git a/v2/agents/technical/multi_timeframe/alignment.py b/v2/agents/technical/multi_timeframe/alignment.py
+new file mode 100644
+index 0000000..b3be13e
+--- /dev/null
++++ b/v2/agents/technical/multi_timeframe/alignment.py
+@@ -0,0 +1,88 @@
++"""
++agents/technical/multi_timeframe/alignment.py
++=============================================
++الگوریتم‌های هم‌راستایی MTF (semantics نسخه قبل — بدون تغییر):
++
++  compute_mtf_confluence — فاکتور MTF Confluence (10%) برای یک تایم‌فریم:
++      HTF رانج می‌شود / داده کم → 0.0 (خنثی، penalty ندارد)
++      base خنثی یا HTF خنثی       → 0.0
++      هم‌جهت                      → +0.8 | برعکس → -0.8
++
++  compute_htf_bias — جهت کلی از تایم‌فریم‌های بالاتر (D1/W1):
++      هر دو ضعیف → 0 (Mixed) | تناقض → 0 (Mixed)
++      وگرنه وزن‌دار (D1:0.6 / W1:0.4) با deadband ±0.3
++"""
++
++from __future__ import annotations
++
++from typing import Optional
++
++import pandas as pd
++
++from ..indicators.utils import last_indicator_value
++from ..signals.technical_signal import DIRECTION_DEADBAND
++
++# --- پارامترهای ثابت (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++MIN_BARS = 50
++EMA_FAST = 50
++EMA_SLOW = 200
++CONFLUENCE_MATCH = 0.8
++
++# وزن HTFها در محاسبه‌ی جهت کلی (برای MTFMatrix)
++HTF_WEIGHTS: dict[str, float] = {"D1": 0.6, "W1": 0.4}
++HTF_BIAS_DEADBAND = 0.3
++
++
++def _ema_direction(df: pd.DataFrame) -> int:
++    """جهت EMA در یک دیتاست (1/-1/0) — الگوریتم مشترک base/HTF."""
++    ema50 = last_indicator_value(df.ta.ema(length=EMA_FAST))
++    ema200 = last_indicator_value(df.ta.ema(length=EMA_SLOW))
++    price = float(df["close"].dropna().tolist()[-1])
++    if ema200 is None:
++        return 0
++    if ema50 is not None and ema50 > ema200 and price > ema50:
++        return 1
++    if ema50 is not None and ema50 < ema200 and price < ema50:
++        return -1
++    return 0
++
++
++def compute_mtf_confluence(
++    base_trend_score: Optional[float],
++    htf_data: Optional[pd.DataFrame],
++) -> tuple[Optional[float], Optional[str]]:
++    """
++    فاکتور MTF Confluence (10%).
++    برمی‌گرداند: (امتیاز | None، وضعیت HTF | None)
++    """
++    if htf_data is None or len(htf_data) < MIN_BARS:
++        return None, None
++
++    htf_df = htf_data.copy()
++    htf_df.columns = [c.lower() for c in htf_df.columns]
++    htf_dir = _ema_direction(htf_df)
++    htf_status = {1: "Uptrend", -1: "Downtrend", 0: "Ranging"}[htf_dir]
++
++    base_dir = 0
++    if base_trend_score is not None:
++        base_dir = 1 if base_trend_score > 0 else (-1 if base_trend_score < 0 else 0)
++
++    if htf_dir == 0 or base_dir == 0:
++        return 0.0, htf_status
++    if htf_dir == base_dir:
++        return CONFLUENCE_MATCH, htf_status
++    return -CONFLUENCE_MATCH, htf_status
++
++
++def compute_htf_bias(scores: dict) -> tuple[int, str]:
++    """
++    جهت کلی از تایم‌فریم‌های بالاتر (D1/W1).
++    scores: {tf: score} — tfهایی که در HTF_WEIGHTS نیستند نادیده گرفته می‌شوند.
++    برمی‌گرداند: (direction ∈ {1, -1, 0}, "HTF Bias: X" | "HTF Bias: Mixed")
++    """
++    weighted = sum(HTF_WEIGHTS.get(tf, 0.0) * (s or 0.0) for tf, s in scores.items())
++    if weighted > HTF_BIAS_DEADBAND:
++        return 1, "HTF Bias: Bullish"
++    if weighted < -HTF_BIAS_DEADBAND:
++        return -1, "HTF Bias: Bearish"
++    return 0, "HTF Bias: Mixed"
+diff --git a/v2/agents/technical/multi_timeframe/scanner.py b/v2/agents/technical/multi_timeframe/scanner.py
+new file mode 100644
+index 0000000..4acc087
+--- /dev/null
++++ b/v2/agents/technical/multi_timeframe/scanner.py
+@@ -0,0 +1,205 @@
++"""
++agents/technical/multi_timeframe/scanner.py
++===========================================
++اسکنر Multi-Timeframe — 100% deterministic، بدون LLM.
++
++فاز ۷: به‌جای انتخاب دستی یک TF برای هر جفت‌ارز، موتور technical روی ۷ TF
++اجرا می‌شود و خروجی یک «matrix» قابل‌تحلیل است.
++
++Phase 1: imports از ماژول‌های جدید (engine/alignment) — منطق بدون تغییر.
++
++Usage:
++    from agents.technical.multi_timeframe import scanner as mtf
++    m = mtf.scan_timeframes("EURUSD=X")
++    print(m.strongest().timeframe)
++"""
++
++from __future__ import annotations
++
++import logging
++from dataclasses import dataclass
++from typing import Optional
++
++from ..data.market_data import TIMEFRAME_MAP
++from ..engine import calculate_technical_metrics
++from ..models import TechnicalMetrics
++from ..signals.technical_signal import DIRECTION_DEADBAND
++from .alignment import compute_htf_bias
++
++logger = logging.getLogger(__name__)
++
++# ---------------------------------------------------------------------------
++# تنظیمات
++# ---------------------------------------------------------------------------
++
++# TFهای پیش‌فرض اسکن (از بلند تا کوتاه)
++DEFAULT_TIMEFRAMES = ["W1", "D1", "H4", "H2", "H1", "M30", "M15"]
++
++# نقش هر TF در تحلیل (برای گزارش)
++TIMEFRAME_ROLES: dict[str, str] = {
++    "W1": "HTF - Context / bias",
++    "D1": "HTF - Bias / key levels",
++    "H4": "MTF - Setup structure",
++    "H2": "MTF - Setup structure",
++    "H1": "LTF - Entry timing",
++    "M30": "LTF - Entry timing",
++    "M15": "LTF - Entry trigger",
++}
++
++
++# ---------------------------------------------------------------------------
++# مدل‌های داده
++# ---------------------------------------------------------------------------
++
++@dataclass
++class TimeframeScore:
++    """نتیجه‌ی technical روی یک تایم‌فریم."""
++    timeframe: str
++    direction: int        # 1 / -1 / 0 (از deadband یکپارچه)
++    score: float          # [-1, 1]
++    confidence: float     # [0, 1]
++    metrics: TechnicalMetrics
++
++    @property
++    def label(self) -> str:
++        names = {1: "BULLISH", -1: "BEARISH", 0: "NEUTRAL"}
++        return f"{names.get(self.direction, 'UNKNOWN')} ({self.score:+.2f}, conf {self.confidence:.2f})"
++
++
++@dataclass
++class MTFMatrix:
++    """جمع‌بندی اسکن MTF برای یک نماد."""
++    ticker: str
++    scores: list[TimeframeScore]
++    htf_bias: int = 0
++    htf_bias_label: str = "HTF Bias: Mixed"
++
++    def get(self, tf: str) -> Optional[TimeframeScore]:
++        for s in self.scores:
++            if s.timeframe == tf:
++                return s
++        return None
++
++    def valid_timeframes(self) -> list[str]:
++        """
++        TFهایی که score واقعی دارند (fetch + محاسبه موفق).
++
++        Phase 1: اضافه شد — run_phase3 این متد را صدا می‌زد ولی تعریف نداشت
++        (W9: AttributeError ساد‌ها کل MTF پایپ‌لاین را بی‌صدا می‌کشت).
++        """
++        return [s.timeframe for s in self.scores if s.metrics.technical_score is not None]
++
++    def strongest(self) -> TimeframeScore:
++        """TF با قوی‌ترین سیگنال: max |score| × confidence."""
++        return max(self.scores, key=lambda s: abs(s.score) * s.confidence)
++
++    def aligned(self) -> bool:
++        """آیا HTF bias با LTF entry-timeframes (H1/M30/M15) هم‌جهت است؟"""
++        if self.htf_bias == 0:
++            return False
++        ltf_dirs = [s.direction for s in self.scores if s.timeframe in ("H1", "M30", "M15")]
++        if not ltf_dirs:
++            return False
++        return all(d == self.htf_bias for d in ltf_dirs if d != 0) and any(
++            d == self.htf_bias for d in ltf_dirs
++        )
++
++    def summary(self) -> str:
++        lines = [f"MTF Matrix for {self.ticker}"]
++        lines.append(f"  HTF Bias: {self.htf_bias_label} (dir={self.htf_bias})")
++        for s in self.scores:
++            role = TIMEFRAME_ROLES.get(s.timeframe, "")
++            lines.append(f"  {s.timeframe:<4} {s.label:<45} [{role}]")
++        strong = self.strongest()
++        lines.append(
++            f"  Strongest: {strong.timeframe} {strong.label} | Aligned: {self.aligned()}"
++        )
++        return "\n".join(lines)
++
++
++# ---------------------------------------------------------------------------
++# اسکن
++# ---------------------------------------------------------------------------
++
++def _score_one(ticker: str, tf: str) -> TimeframeScore:
++    """اجرای موتور deterministic روی یک TF (fetch داخلی)."""
++    interval = TIMEFRAME_MAP.get(tf)
++    if not interval:
++        raise ValueError(f"unknown timeframe: {tf}")
++
++    metrics = calculate_technical_metrics(ticker, timeframe=tf)
++    score = metrics.technical_score
++    if score is None:
++        return TimeframeScore(
++            timeframe=tf, direction=0, score=0.0,
++            confidence=metrics.technical_confidence or 0.0, metrics=metrics,
++        )
++    if score > DIRECTION_DEADBAND:
++        direction = 1
++    elif score < -DIRECTION_DEADBAND:
++        direction = -1
++    else:
++        direction = 0
++    return TimeframeScore(
++        timeframe=tf, direction=direction, score=score,
++        confidence=metrics.technical_confidence or 0.0, metrics=metrics,
++    )
++
++
++def scan_timeframes(
++    ticker: str, timeframes: Optional[list[str]] = None
++) -> MTFMatrix:
++    """
++    اسکن MTF: اجرای calculate_technical_metrics روی هر TF.
++
++    deterministic و بدون LLM. هر TF که fetch/محاسبه‌اش ناموفق باشد
++    با score=0 / confidence=0 ثبت می‌شود (سایر TFها ادامه دارند).
++    """
++    tfs = timeframes or DEFAULT_TIMEFRAMES
++    results: list[TimeframeScore] = []
++
++    for tf in tfs:
++        try:
++            results.append(_score_one(ticker, tf))
++        except Exception as exc:
++            logger.warning(f"[MTF] {ticker} {tf} scan failed: {exc}")
++            results.append(
++                TimeframeScore(
++                    timeframe=tf, direction=0, score=0.0, confidence=0.0,
++                    metrics=TechnicalMetrics(),
++                )
++            )
++
++    scores_by_tf = {s.timeframe: s.score for s in results}
++    htf_dir, htf_label = compute_htf_bias(scores_by_tf)
++
++    return MTFMatrix(
++        ticker=ticker,
++        scores=results,
++        htf_bias=htf_dir,
++        htf_bias_label=htf_label,
++    )
++
++
++# ---------------------------------------------------------------------------
++# CLI smoke test
++# ---------------------------------------------------------------------------
++
++def main() -> None:
++    import argparse
++
++    parser = argparse.ArgumentParser(description="Deterministic MTF scanner (no LLM)")
++    parser.add_argument("ticker", nargs="?", default="EURUSD=X")
++    parser.add_argument(
++        "--tfs", default=",".join(DEFAULT_TIMEFRAMES),
++        help="comma-separated timeframes",
++    )
++    args = parser.parse_args()
++
++    tfs = [t.strip().upper() for t in args.tfs.split(",") if t.strip()]
++    matrix = scan_timeframes(args.ticker, tfs)
++    print(matrix.summary())
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/v2/agents/technical/signals/__init__.py b/v2/agents/technical/signals/__init__.py
+new file mode 100644
+index 0000000..a0df0d6
+--- /dev/null
++++ b/v2/agents/technical/signals/__init__.py
+@@ -0,0 +1 @@
++# لایه Signal — direction از score + مدل‌های خروجی (Report/LLMStrategy)
+diff --git a/v2/agents/technical/signals/report.py b/v2/agents/technical/signals/report.py
+new file mode 100644
+index 0000000..671506b
+--- /dev/null
++++ b/v2/agents/technical/signals/report.py
+@@ -0,0 +1,43 @@
++"""
++agents/technical/signals/report.py
++==================================
++مدل‌های خروجی Technical Agent.
++
++TechnicalReport:
++  direction ∈ {1, -1, 0} — سیگنال (از score deterministic با deadband یکپارچه)
++  score [-1, 1] — امتیاز (deterministic)
++  confidence [0, 1] — اطمینان (deterministic)
++  strategy / reasoning — روایت LLM (فقط تفسیر؛ امتیاز نمی‌سازد)
++
++Phase 1 (افزایشی):
++  llm_status: ok | guard_flagged | fallback
++  llm_guard_flags: دلایل نارسایی LLM Guard (در صورت وجود)
++
++مهم: Field descriptionها بخشی از prompt (format_instructions) هستند —
++بدون backtest/تصویب تغییر نکنند.
++"""
++
++from __future__ import annotations
++
++from typing import Optional
++
++from pydantic import BaseModel, Field
++
++
++class LLMStrategy(BaseModel):
++    """LLM only generates strategy and reasoning, not scores."""
++    strategy: str = Field(description="Specific trading strategy based on the deterministic scores")
++    reasoning: str = Field(description="3-4 sentences explaining the strategy in context of the scores")
++
++
++class TechnicalReport(BaseModel):
++    """Final output combining Python math and LLM narrative."""
++    direction: int = Field(description="1=Bullish, -1=Bearish, 0=Neutral")
++    score: float = Field(ge=-1.0, le=1.0, description="Deterministic technical score")
++    confidence: float = Field(ge=0.0, le=1.0, description="Reliability of the score")
++    strategy: str
++    reasoning: str
++
++    # --- Phase 1: فیلد‌های افزایشی (حسابرسی LLM) ---
++    llm_status: Optional[str] = None        # ok | guard_flagged | fallback
++    llm_guard_flags: Optional[str] = None   # دلایل guard (در صورت وجود)
+diff --git a/v2/agents/technical/signals/technical_signal.py b/v2/agents/technical/signals/technical_signal.py
+new file mode 100644
+index 0000000..acda826
+--- /dev/null
++++ b/v2/agents/technical/signals/technical_signal.py
+@@ -0,0 +1,36 @@
++"""
++agents/technical/signals/technical_signal.py
++============================================
++تبدیل score → direction (Signal) — جدا از Confidence.
++
++Phase 1 (weakness W2): deadband یکپارچه شد:
++  نسخه قبل: TechnicalAgent ±0.1 | MTF Scanner ±0.15 (دو آستانه‌ی ناسازگار)
++  Phase 1:   هر دو ±0.15 (DIRECTION_DEADBAND)
++
++تفاوت رفتار فقط برای scoreهای (0.10, 0.15) و (-0.15, -0.10) است:
++امتیاز ۰.۱۲ که قبلاً BULLISH می‌شد، حالا NEUTRAL می‌شود — مطابق deadband
++یکپارچه‌شده؛ در test/technical/test_direction.py مستند شده است.
++"""
++
++from __future__ import annotations
++
++from typing import Optional
++
++# آستانه‌ی یکپارچه (semantics: |score| کمتر از این = NEUTRAL)
++DIRECTION_DEADBAND = 0.15
++
++
++def direction_from_score(score: Optional[float]) -> int:
++    """
++    score → direction:
++      score > +deadband  → +1 (BULLISH)
++      score < -deadband  → -1 (BEARISH)
++      وگرنه (یا None)    →  0 (NEUTRAL)
++    """
++    if score is None:
++        return 0
++    if score > DIRECTION_DEADBAND:
++        return 1
++    if score < -DIRECTION_DEADBAND:
++        return -1
++    return 0
+diff --git a/v2/agents/technical/structure/__init__.py b/v2/agents/technical/structure/__init__.py
+new file mode 100644
+index 0000000..bc8518e
+--- /dev/null
++++ b/v2/agents/technical/structure/__init__.py
+@@ -0,0 +1 @@
++# لایه SMC Structure — swings / BOS-CHoCH / FVG / Order Block / Liquidity
+diff --git a/v2/agents/technical/structure/bos_choch.py b/v2/agents/technical/structure/bos_choch.py
+new file mode 100644
+index 0000000..25e101d
+--- /dev/null
++++ b/v2/agents/technical/structure/bos_choch.py
+@@ -0,0 +1,147 @@
++"""
++agents/technical/structure/bos_choch.py
++=======================================
++فاکتور Structure (20%) — BOS + CHoCH.
++
++بازساخت Phase 1:
++  - **داده خام غنی‌تر**: آخرین BOS و آخرین CHoCH هرکدام با age (تعداد کندل
++    تا لحظه فعلی) + sequence چهار رویداد آخر + تعداد swing.
++  - **score_mode**:
++      "bos_only"     (پیش‌فرض — دقیقاً semantics نسخه قبل: فقط آخرین BOS)
++      "choch_aware"  (خاموش در Phase 1؛ روشن‌سازی فقط با backtest A/B)
++                     → آخرین رویداد حاکم: CHoCH = ±0.5 (ضعیف‌تر از ادامه ساختار)
++                       BOS = ±0.8
++
++به یاد داشته باشید: در نسخه قبل ستون CHOCH کتابخانه محاسبه می‌شد ولی
++نادیده گرفته می‌شد (weakness W1) — حالا هر دو رویداد ثبت می‌شوند و
++semantics پیش‌فرض بدون تغییر حفظ شده است.
++"""
++
++from __future__ import annotations
++
++import logging
++from dataclasses import dataclass, field
++from typing import Any, Dict, Optional
++
++import pandas as pd
++from smartmoneyconcepts import smc
++
++logger = logging.getLogger(__name__)
++
++# --- مقادیر امتیاز (semantics نسخه قبل) ---
++BOS_SCORE = 0.8
++CHOCH_SCORE = 0.5  # فقط در mode choch_aware
++
++# حالت پیش‌فرض — تغییر آن بدون backtest ممنوع است
++DEFAULT_SCORE_MODE = "bos_only"
++
++# چند رویداد آخر در sequence خام
++SEQUENCE_LENGTH = 4
++
++
++@dataclass
++class StructureResult:
++    last_bos_dir: Optional[int] = None
++    last_bos_age_bars: Optional[int] = None
++    last_choch_dir: Optional[int] = None
++    last_choch_age_bars: Optional[int] = None
++    sequence: list[Dict[str, Any]] = field(default_factory=list)
++    swing_count: Optional[int] = None
++    score: Optional[float] = None
++    score_mode: str = DEFAULT_SCORE_MODE
++
++    def to_raw_dict(self) -> Dict[str, Any]:
++        """نسخه خام برای snapshot (decision log)."""
++        return {
++            "score_mode": self.score_mode,
++            "last_bos": (
++                {"dir": self.last_bos_dir, "age_bars": self.last_bos_age_bars}
++                if self.last_bos_dir is not None else None
++            ),
++            "last_choch": (
++                {"dir": self.last_choch_dir, "age_bars": self.last_choch_age_bars}
++                if self.last_choch_dir is not None else None
++            ),
++            "sequence": self.sequence,
++            "swing_count": self.swing_count,
++        }
++
++
++def compute_structure(
++    df: pd.DataFrame,
++    swings: Optional[pd.DataFrame],
++    score_mode: str = DEFAULT_SCORE_MODE,
++) -> StructureResult:
++    """
++    محاسبه ساختار بازار (BOS/CHoCH) از روی swingها.
++    امتیاز پیش‌فرض (bos_only) دقیقاً نسخه قبل: آخرین BOS → ±0.8 یا None.
++    """
++    result = StructureResult(score_mode=score_mode)
++    if swings is None or swings.empty:
++        result.swing_count = 0
++        return result
++
++    result.swing_count = int(len(swings))
++
++    bos_df = smc.bos_choch(df, swings, close_break=True)
++    if bos_df is None:
++        bos_df = smc.bos_choch(df, swings)
++    if bos_df is None or bos_df.empty or "BOS" not in bos_df.columns:
++        return result
++
++    n = len(df)
++
++    def _last_event(events_df: pd.DataFrame, col: str) -> tuple[Optional[int], Optional[int]]:
++        if events_df.empty:
++            return None, None
++        last = events_df.iloc[-1]
++        try:
++            pos = int(events_df.index[-1])
++        except (TypeError, ValueError):
++            pos = n - 1
++        return int(last[col]), (n - 1) - pos
++
++    bos_events = bos_df.dropna(subset=["BOS"])
++    result.last_bos_dir, result.last_bos_age_bars = _last_event(bos_events, "BOS")
++
++    choch_events = pd.DataFrame()
++    if "CHOCH" in bos_df.columns:
++        choch_events = bos_df.dropna(subset=["CHOCH"])
++        result.last_choch_dir, result.last_choch_age_bars = _last_event(choch_events, "CHOCH")
++
++    # --- sequence چهار رویداد آخر (BOS + CHoCH) به ترتیب زمان ---
++    merged: list[tuple[int, str, int]] = []
++    if not bos_events.empty:
++        for idx, row in bos_events.tail(SEQUENCE_LENGTH).iterrows():
++            try:
++                merged.append((int(idx), "BOS", int(row["BOS"])))
++            except (TypeError, ValueError):
++                continue
++    if not choch_events.empty:
++        for idx, row in choch_events.tail(SEQUENCE_LENGTH).iterrows():
++            try:
++                merged.append((int(idx), "CHoCH", int(row["CHOCH"])))
++            except (TypeError, ValueError):
++                continue
++    merged.sort(key=lambda t: t[0])
++    for pos, kind, direction in merged[-SEQUENCE_LENGTH:]:
++        result.sequence.append({"type": kind, "dir": direction, "age_bars": (n - 1) - pos})
++
++    # --- امتیاز ---
++    if score_mode == "choch_aware":
++        # آخرین رویداد حاکم (CHoCH ضعیف‌تر از BOS)
++        candidates: list[tuple[int, int, int]] = []
++        if result.last_bos_dir is not None and result.last_bos_age_bars is not None:
++            candidates.append((n - 1 - result.last_bos_age_bars, result.last_bos_dir, BOS_SCORE))
++        if result.last_choch_dir is not None and result.last_choch_age_bars is not None:
++            candidates.append((n - 1 - result.last_choch_age_bars, result.last_choch_dir, CHOCH_SCORE))
++        if candidates:
++            candidates.sort(key=lambda t: t[0])
++            _, direction, magnitude = candidates[-1]
++            result.score = magnitude * direction
++    else:
++        # bos_only — semantics نسخه قبل
++        if result.last_bos_dir is not None:
++            result.score = BOS_SCORE * result.last_bos_dir
++
++    return result
+diff --git a/v2/agents/technical/structure/fvg.py b/v2/agents/technical/structure/fvg.py
+new file mode 100644
+index 0000000..8d0212a
+--- /dev/null
++++ b/v2/agents/technical/structure/fvg.py
+@@ -0,0 +1,84 @@
++"""
++agents/technical/structure/fvg.py
++=================================
++بخش FVG از فاکتور SMC Location (15%).
++
++منطق امتیازدهی دقیقاً نسخه قبل:
++  FVG بولیش فعال (زیر قیمت) → +0.5 | FVG بیرش فعال (بالای قیمت) → -0.5
++  اولویت: FVGهای غیر-میتیه؛ اگر نبود، میتیه‌شده‌ها.
++
++Phase 1: فاصله٪ تا لبه‌ی زون به‌عنوان داده خام (level_distances) —
++بدون تأثیر روی score.
++"""
++
++from __future__ import annotations
++
++import logging
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++from smartmoneyconcepts import smc
++
++logger = logging.getLogger(__name__)
++
++FVG_SCORE = 0.5
++
++
++@dataclass
++class FVGResult:
++    bull_low: Optional[float] = None
++    bull_high: Optional[float] = None
++    bear_low: Optional[float] = None
++    bear_high: Optional[float] = None
++    bull_unmitigated: bool = False
++    bear_unmitigated: bool = False
++    bull_distance_pct: Optional[float] = None
++    bear_distance_pct: Optional[float] = None
++    contribution: float = 0.0
++
++
++def compute_fvg(df: pd.DataFrame, current_price: float) -> FVGResult:
++    """شناسایی FVG فعال (بالای/زیر قیمت) و امتیازدهی ±0.5."""
++    result = FVGResult()
++    fvg_df = smc.fvg(df, join_consecutive=False)
++    if fvg_df is None:
++        fvg_df = smc.fvg(df)
++    if fvg_df is None or fvg_df.empty:
++        return result
++
++    fvg_valid = fvg_df.dropna(subset=["FVG"])
++
++    # --- Bullish FVG زیر قیمت (demand) ---
++    bull_unmit = fvg_valid[
++        (fvg_valid["FVG"] == 1) & (fvg_valid["MitigatedIndex"].isna())
++        & (fvg_valid["Top"] < current_price)
++    ]
++    bull_mit = fvg_valid[(fvg_valid["FVG"] == 1) & (fvg_valid["Top"] < current_price)]
++    active_bull = bull_unmit if not bull_unmit.empty else bull_mit
++    if not active_bull.empty:
++        b = active_bull.iloc[-1]
++        result.bull_low = float(b["Bottom"])
++        result.bull_high = float(b["Top"])
++        result.bull_unmitigated = not bull_unmit.empty
++        result.contribution += FVG_SCORE
++        if current_price > 0:
++            result.bull_distance_pct = (current_price - result.bull_high) / current_price * 100.0
++
++    # --- Bearish FVG بالای قیمت (supply) ---
++    bear_unmit = fvg_valid[
++        (fvg_valid["FVG"] == -1) & (fvg_valid["MitigatedIndex"].isna())
++        & (fvg_valid["Bottom"] > current_price)
++    ]
++    bear_mit = fvg_valid[(fvg_valid["FVG"] == -1) & (fvg_valid["Bottom"] > current_price)]
++    active_bear = bear_unmit if not bear_unmit.empty else bear_mit
++    if not active_bear.empty:
++        b = active_bear.iloc[-1]
++        result.bear_low = float(b["Bottom"])
++        result.bear_high = float(b["Top"])
++        result.bear_unmitigated = not bear_unmit.empty
++        result.contribution -= FVG_SCORE
++        if current_price > 0:
++            result.bear_distance_pct = (result.bear_low - current_price) / current_price * 100.0
++
++    return result
+diff --git a/v2/agents/technical/structure/liquidity.py b/v2/agents/technical/structure/liquidity.py
+new file mode 100644
+index 0000000..9f53d4d
+--- /dev/null
++++ b/v2/agents/technical/structure/liquidity.py
+@@ -0,0 +1,85 @@
++"""
++agents/technical/structure/liquidity.py
++=======================================
++فاکتور Liquidity Sweep (12%) — اسویپ سطوح نقدینگی اخیر.
++
++منطق امتیازدهی دقیقاً نسخه قبل:
++  sweep زیر کف‌ها (sell-side)  → شکار استاپ صعودی:  +0.8 (با برگشت) / +0.4
++  sweep بالای سقف‌ها (buy-side) → شکار استاپ نزولی:  -0.8 / -0.4
++  بدون اسویپ اخیر (در ~۵ کندل آخر) → 0.0
++
++ستون‌های smc.liquidity: Liquidity (سمت ±1), Level (قیمت سطح), End, Swept (ایندکس اسویپ).
++»recovered« از رابطه قیمت فعلی با سطح محاسبه می‌شود (نسخه قبل).
++"""
++
++from __future__ import annotations
++
++import logging
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++from smartmoneyconcepts import smc
++
++logger = logging.getLogger(__name__)
++
++# --- پارامترهای ثابت (مقادیر نسخه قبل، نام‌گذاری‌شده) ---
++SWEEP_WINDOW = 6      # «~۵ کندل آخر»
++RECOVERED_SCORE = 0.8
++UNRECOVERED_SCORE = 0.4
++
++
++@dataclass
++class LiquidityResult:
++    score: Optional[float] = None
++    status: Optional[str] = None
++    level: Optional[float] = None
++    side: Optional[int] = None
++    recovered: Optional[bool] = None
++
++
++def compute_liquidity(
++    df: pd.DataFrame, swings: Optional[pd.DataFrame], current_price: float
++) -> LiquidityResult:
++    """تشخیص اسویپ نقدینگی اخیر و امتیازدهی ±0.4/0.8."""
++    result = LiquidityResult()
++    if swings is None or swings.empty:
++        return result
++
++    liq_df = smc.liquidity(df, swings)
++    if liq_df is None or liq_df.empty or "Liquidity" not in liq_df.columns:
++        return result
++
++    liq_valid = liq_df.dropna(subset=["Liquidity"])
++    swept = liq_valid[liq_valid["Swept"].notna()]
++    recent_swept = swept[swept["Swept"] >= len(df) - SWEEP_WINDOW]
++    if recent_swept.empty:
++        result.score = 0.0
++        result.status = "No recent sweep"
++        return result
++
++    last_sweep = recent_swept.loc[recent_swept["Swept"].idxmax()]
++    level = float(last_sweep["Level"])
++    side = int(last_sweep["Liquidity"])
++    recovered = (current_price > level) if side == -1 else (current_price < level)
++
++    result.level = level
++    result.side = side
++    result.recovered = recovered
++
++    sweep_score = RECOVERED_SCORE if recovered else UNRECOVERED_SCORE
++
++    if side == -1:
++        result.score = sweep_score
++        result.status = (
++            f"Sell-side liquidity swept at {level:.5f} (bullish stop hunt"
++            f"{', price recovered' if recovered else ', no recovery yet'})"
++        )
++    else:
++        result.score = -sweep_score
++        result.status = (
++            f"Buy-side liquidity swept at {level:.5f} (bearish stop hunt"
++            f"{', price recovered' if recovered else ', no recovery yet'})"
++        )
++
++    return result
+diff --git a/v2/agents/technical/structure/order_blocks.py b/v2/agents/technical/structure/order_blocks.py
+new file mode 100644
+index 0000000..65fd16b
+--- /dev/null
++++ b/v2/agents/technical/structure/order_blocks.py
+@@ -0,0 +1,82 @@
++"""
++agents/technical/structure/order_blocks.py
++==========================================
++بخش Order Block از فاکتور SMC Location (15%).
++
++منطق امتیازدهی دقیقاً نسخه قبل:
++  OB بولیش فعال (زیر قیمت) → +0.8 | OB بیرش فعال (بالای قیمت) → -0.8
++  اولویت: OBهای غیر-میتیه؛ اگر نبود، میتیه‌شده‌ها.
++
++Phase 1: فاصله٪ تا لبه‌ی بلوک به‌عنوان داده خام (level_distances).
++"""
++
++from __future__ import annotations
++
++import logging
++from dataclasses import dataclass
++from typing import Optional
++
++import pandas as pd
++from smartmoneyconcepts import smc
++
++logger = logging.getLogger(__name__)
++
++OB_SCORE = 0.8
++
++
++@dataclass
++class OrderBlockResult:
++    bull_top: Optional[float] = None
++    bear_bottom: Optional[float] = None
++    bull_unmitigated: bool = False
++    bear_unmitigated: bool = False
++    bull_distance_pct: Optional[float] = None
++    bear_distance_pct: Optional[float] = None
++    contribution: float = 0.0
++
++
++def compute_order_blocks(
++    df: pd.DataFrame, swings: pd.DataFrame, current_price: float
++) -> OrderBlockResult:
++    """شناسایی Order Block فعال (بالای/زیر قیمت) و امتیازدهی ±0.8."""
++    result = OrderBlockResult()
++    # همان API نسخه قبل: smc.ob با close_mitigation=False
++    ob_df = smc.ob(df, swings, close_mitigation=False)
++    if ob_df is None:
++        ob_df = smc.ob(df, swings)
++    if ob_df is None or ob_df.empty:
++        return result
++
++    ob_valid = ob_df.dropna(subset=["OB"])
++
++    # --- Bullish OB زیر قیمت (demand) ---
++    bull_unmit = ob_valid[
++        (ob_valid["OB"] == 1) & (ob_valid["MitigatedIndex"].isna())
++        & (ob_valid["Top"] < current_price)
++    ]
++    bull_mit = ob_valid[(ob_valid["OB"] == 1) & (ob_valid["Top"] < current_price)]
++    active_bull = bull_unmit if not bull_unmit.empty else bull_mit
++    if not active_bull.empty:
++        b = active_bull.iloc[-1]
++        result.bull_top = float(b["Top"])
++        result.bull_unmitigated = not bull_unmit.empty
++        result.contribution += OB_SCORE
++        if current_price > 0:
++            result.bull_distance_pct = (current_price - result.bull_top) / current_price * 100.0
++
++    # --- Bearish OB بالای قیمت (supply) ---
++    bear_unmit = ob_valid[
++        (ob_valid["OB"] == -1) & (ob_valid["MitigatedIndex"].isna())
++        & (ob_valid["Bottom"] > current_price)
++    ]
++    bear_mit = ob_valid[(ob_valid["OB"] == -1) & (ob_valid["Bottom"] > current_price)]
++    active_bear = bear_unmit if not bear_unmit.empty else bear_mit
++    if not active_bear.empty:
++        b = active_bear.iloc[-1]
++        result.bear_bottom = float(b["Bottom"])
++        result.bear_unmitigated = not bear_unmit.empty
++        result.contribution -= OB_SCORE
++        if current_price > 0:
++            result.bear_distance_pct = (result.bear_bottom - current_price) / current_price * 100.0
++
++    return result
+diff --git a/v2/agents/technical/structure/swings.py b/v2/agents/technical/structure/swings.py
+new file mode 100644
+index 0000000..89f8ffb
+--- /dev/null
++++ b/v2/agents/technical/structure/swings.py
+@@ -0,0 +1,48 @@
++"""
++agents/technical/structure/swings.py
++====================================
++تشخیص Swing High/Low — پایه‌ی فاکتورهای Structure، OB، Liquidity و OTE.
++
++بازساخت Phase 1: اگر swing_length=5 خطا بدهد، fallback به پیش‌فرض کتابخانه
++در یک try/except جدا انجام می‌شود (در نسخه قبل، خطا در swing کل بلوک
++Structure + SMC Location را می‌کشت — بهبود آگاهانه در مسیر exception).
++"""
++
++from __future__ import annotations
++
++import logging
++from typing import Optional
++
++import pandas as pd
++from smartmoneyconcepts import smc
++
++logger = logging.getLogger(__name__)
++
++DEFAULT_SWING_LENGTH = 5
++
++
++def detect_swings(df: pd.DataFrame) -> Optional[pd.DataFrame]:
++    """
++    تشخیص swingها. خروجی: DataFrame swingهای smartmoneyconcepts یا None.
++    """
++    try:
++        swings = smc.swing_highs_lows(df, swing_length=DEFAULT_SWING_LENGTH)
++    except Exception as e:
++        logger.warning(f"swing_highs_lows(swing_length={DEFAULT_SWING_LENGTH}) failed: {e}")
++        swings = None
++
++    if swings is None:
++        try:
++            swings = smc.swing_highs_lows(df)
++        except Exception as e:
++            logger.warning(f"swing_highs_lows(default) failed: {e}")
++            swings = None
++
++    return swings
++
++
++def swing_count(swings: Optional[pd.DataFrame]) -> Optional[int]:
++    """تعداد swingهای تشخیص‌داده‌شده (معیار خام کیفیت ساختار)."""
++    if swings is None or swings.empty:
++        return 0
++    return int(len(swings))
+diff --git a/v2/agents/technical/technical_analyzer.py b/v2/agents/technical/technical_analyzer.py
+index 6406a62..a9be26f 100644
+--- a/v2/agents/technical/technical_analyzer.py
++++ b/v2/agents/technical/technical_analyzer.py
+@@ -1,770 +1,49 @@
+ """
+-agents/technical/technical_analyzer.py
+-======================================
+-Phase 3 Technical Analysis Agent (Deterministic 10-Factor Scoring Engine).
+-
+-An independent multi-agent module that fetches price history, calculates 
+-10 independent technical factors deterministically, combines them into a 
+-technical_score and technical_confidence, and uses an LLM ONLY for 
+-narrative strategy generation.
+-
+-Design principles:
+-  - Deterministic scoring (Python math, no LLM for scores)
+-  - Distinguishes 0 (Neutral) from None (Not Evaluated)
+-  - Stateless and LangGraph-ready
+-"""
+-
+-from __future__ import annotations
+-
+-import logging
+-from typing import Optional, Literal
+-import pandas as pd
+-import numpy as np
+-import yfinance as yf
+-
+-# Indicators — pandas-ta-classic (200+ indicators + 62 الگوی کندل استاندارد)
+-import pandas_ta_classic as pta  # noqa: F401 — ایمپورت، اکسسور df.ta را رجیستر می‌کند
+-from smartmoneyconcepts import smc
+-
+-from langchain_core.language_models import BaseChatModel
+-from langchain_core.prompts import ChatPromptTemplate
+-from langchain_core.output_parsers import PydanticOutputParser
+-from langchain_core.runnables import RunnableLambda
+-from pydantic import BaseModel, Field, field_validator
+-
+-from core.llm_utils import invoke_with_retry, _strip_json_markdown
+-
+-logger = logging.getLogger(__name__)
+-
+-# ===========================================================================
+-# Constants
+-# ===========================================================================
+-
+-HISTORY_PERIOD = "1y"
+-
+-# Phase 7: یادداشت مهم — yfinance اینترول 4h/2h ندارد؛ این دو از دیتای 1h
+-# ری‌سیمپل می‌شوند (نگاه به _fetch_price_history).
+-TIMEFRAME_MAP = {
+-    "M15": "15m",
+-    "M30": "30m",
+-    "H1": "60m",
+-    "H2": "2h",    # resample از 1h
+-    "H4": "4h",    # resample از 1h
+-    "D1": "1d",
+-    "W1": "1wk",
+-}
+-
+-# اینترول‌هایی که باید از 1h ری‌سیمپل شوند
+-_RESAMPLE_FROM_1H = {"2h": "2h", "4h": "4h"}
+-
+-# تایم‌فریم بالاتر (HTF) برای مؤلفه MTF Confluence
+-HTF_MAP = {
+-    "M15": "60m",
+-    "M30": "60m",
+-    "H1": "4h",
+-    "H2": "4h",
+-    "H4": "1d",
+-    "D1": "1wk",
+-    "W1": "1wk",
+-}
+-
+-# ===========================================================================
+-# Pydantic Models
+-# ===========================================================================
+-
+-class ComponentScores(BaseModel):
+-    """Scores for each of the 10 technical factors [-1, 1]. None if not evaluated."""
+-    structure: Optional[float] = None
+-    trend: Optional[float] = None
+-    smc_location: Optional[float] = None
+-    mtf_confluence: Optional[float] = None
+-    momentum: Optional[float] = None
+-    volatility: Optional[float] = None
+-    price_action: Optional[float] = None
+-    liquidity_sweep: Optional[float] = None
+-    pdh_pdl: Optional[float] = None
+-    ote_zone: Optional[float] = None
+-
+-class TechnicalMetrics(BaseModel):
+-    """Full raw technical data and component scores."""
+-    current_price: Optional[float] = None
+-    technical_score: Optional[float] = None  # Final aggregated score [-1, 1]
+-    technical_confidence: Optional[float] = None  # Reliability [0, 1]
+-    components: ComponentScores = Field(default_factory=ComponentScores)
+-    
+-    # Raw Data for LLM narrative
+-    trend_status: Optional[str] = None
+-    adx_value: Optional[float] = None
+-    recent_bos: Optional[str] = None
+-    active_bullish_ob: Optional[float] = None
+-    active_bearish_ob: Optional[float] = None
+-    active_bull_fvg_low: Optional[float] = None
+-    active_bull_fvg_high: Optional[float] = None
+-    active_bear_fvg_low: Optional[float] = None
+-    active_bear_fvg_high: Optional[float] = None
+-    rsi: Optional[float] = None
+-    macd_histogram: Optional[float] = None
+-    last_candle_type: Optional[str] = None
+-    htf_interval: Optional[str] = None
+-    htf_trend_status: Optional[str] = None
+-    liquidity_sweep_status: Optional[str] = None
+-    previous_day_high: Optional[float] = None
+-    previous_day_low: Optional[float] = None
+-    pdh_pdl_status: Optional[str] = None
+-    current_retracement: Optional[float] = None
+-    ote_status: Optional[str] = None
+-    chop_value: Optional[float] = None
+-
+-class LLMStrategy(BaseModel):
+-    """LLM only generates strategy and reasoning, not scores."""
+-    strategy: str = Field(description="Specific trading strategy based on the deterministic scores")
+-    reasoning: str = Field(description="3-4 sentences explaining the strategy in context of the scores")
+-
+-class TechnicalReport(BaseModel):
+-    """Final output combining Python math and LLM narrative."""
+-    direction: int = Field(description="1=Bullish, -1=Bearish, 0=Neutral")
+-    score: float = Field(ge=-1.0, le=1.0, description="Deterministic technical score")
+-    confidence: float = Field(ge=0.0, le=1.0, description="Reliability of the score")
+-    strategy: str
+-    reasoning: str
+-
+-# ===========================================================================
+-# Data Fetcher & Math Layer (Deterministic)
+-# ===========================================================================
+-
+-def _fetch_price_history(ticker: str, interval: str = "1d") -> Optional[pd.DataFrame]:
+-    """
+-    دانلود دیتای قیمت. Phase 7: اینترول‌های 2h/4h که yfinance ندارد
+-    از دیتای 1h ری‌سیمپل می‌شوند (OHLC استاندارد).
+-
+-    باگ قبلی: «4h» مستقیم به yfinance پاس می‌شد که اینترول نامعتبر است
+-    و دانلود empty برمی‌گشت — یعنی H4 عملاً همیشه بدون دیتا بود.
+-    """
+-    # --- مسیر ری‌سیمپل: 2h/4h از 1h ---
+-    if interval in _RESAMPLE_FROM_1H:
+-        try:
+-            data = yf.download(ticker, period="3mo", interval="1h", progress=False, auto_adjust=True)
+-            if data is None or data.empty:
+-                return None
+-            if isinstance(data.columns, pd.MultiIndex):
+-                data.columns = data.columns.get_level_values(0)
+-            data.columns = [c.lower() for c in data.columns]
+-            rule = _RESAMPLE_FROM_1H[interval]
+-            resampled = data.resample(rule).agg({
+-                "open": "first", "high": "max", "low": "min", "close": "last",
+-                **({"volume": "sum"} if "volume" in data.columns else {}),
+-            }).dropna(subset=["close"])
+-            if resampled.empty:
+-                return None
+-            # برگرداندن نام ستون‌ها به فرمت Title Case که بقیه کد انتظار دارد
+-            resampled.columns = [c.capitalize() for c in resampled.columns]
+-            return resampled
+-        except Exception as e:
+-            logger.error(f"Failed to resample {interval} from 1h for {ticker}: {e}")
+-            return None
+-
+-    period = "1y"
+-    if interval in ["60m", "1h"]: period = "3mo"   # 1mo برای H1 کمی بود؛ EMA200 روی 1h به ~۲۰۰ ساعت نیاز دارد
+-    elif interval == "30m": period = "1mo"
+-    elif interval == "15m": period = "5d"
+-    elif interval == "1wk": period = "5y"  # برای EMA200 روی HTF هفتگی کندل کافی لازم است
+-
+-    try:
+-        data = yf.download(ticker, period=period, interval=interval, progress=False, auto_adjust=True)
+-        if data is None or data.empty: return None
+-        if isinstance(data.columns, pd.MultiIndex):
+-            data.columns = data.columns.get_level_values(0)
+-        return data
+-    except Exception as e:
+-        logger.error(f"Failed to download price history for {ticker}: {e}")
+-        return None
+-
+-def _clamp(value: float, low: float, high: float) -> float:
+-    return max(low, min(high, value))
+-
+-
+-def _last_indicator_value(out) -> Optional[float]:
+-    """
+-    آخرین مقدار معتبر از خروجی pandas-ta.
+-
+-    pandas-ta در دیتای کم‌عمق گاهی به‌جای Series یک DataFrame تمام-NaN
+-    برمی‌گرداند (مثلاً EMA200 روی HTF هفتگی با <۲۰۰ کندل) که .iloc[-1]
+-    آن Series می‌شود و pd.notna روی آن کرش می‌کند — این helper هر دو
+-    حالت را امن هندل می‌کند.
+-    """
+-    if out is None:
+-        return None
+-    if isinstance(out, pd.DataFrame):
+-        if out.empty:
+-            return None
+-        out = out.iloc[:, 0]
+-    val = out.iloc[-1]
+-    return float(val) if pd.notna(val) else None
+-
+-def calculate_technical_metrics(ticker: str, timeframe: str = "D1") -> TechnicalMetrics:
+-    """Calculates raw technical metrics and 7 deterministic component scores."""
+-    interval = TIMEFRAME_MAP.get(timeframe, "1d")
+-    data = _fetch_price_history(ticker, interval=interval)
+-    
+-    metrics = TechnicalMetrics()
+-    components = ComponentScores()
+-    
+-    if data is None or len(data) < 50:
+-        return metrics
+-
+-    df = data.copy().reset_index(drop=True)
+-    df.columns = [c.lower() for c in df.columns]
+-    # نسخه با datetime index — برای smc.previous_high_low که بر اساس زمان resample می‌کند
+-    df_dt = data.copy()
+-    df_dt.columns = [c.lower() for c in df_dt.columns]
+-    # بعضی فیدها (مثل جفت‌ارزهای yfinance) ستون volume ندارند یا همیشه صفر است —
+-    # smartmoneyconcepts به این ستون نیاز دارد، پس در نبودش صفر پر می‌کنیم.
+-    if "volume" not in df.columns:
+-        df["volume"] = 0.0
+-    if "volume" not in df_dt.columns:
+-        df_dt["volume"] = 0.0
+-    closes = df["close"].dropna().tolist()
+-    highs = df["high"].dropna().tolist()
+-    lows = df["low"].dropna().tolist()
+-    
+-    metrics.current_price = float(closes[-1])
+-    
+-    # --- 1. Trend Score (13%) — EMA50/200 + تأیید Supertrend ---
+-    # هم‌راستایی EMA با Supertrend → 0.8 | ناهم‌راستایی → 0.4 (ترند ضعیف‌تر)
+-    try:
+-        ema50 = _last_indicator_value(df.ta.ema(length=50))
+-        ema200 = _last_indicator_value(df.ta.ema(length=200))
+-
+-        # Supertrend direction: +1 صعودی / -1 نزولی
+-        st_dir = 0
+-        st_df = df.ta.supertrend(length=10, multiplier=3)
+-        if st_df is not None and not st_df.empty:
+-            st_dir_col = [c for c in st_df.columns if c.startswith("SUPERTd")]
+-            if st_dir_col and pd.notna(st_df[st_dir_col[0]].iloc[-1]):
+-                st_dir = int(st_df[st_dir_col[0]].iloc[-1])
+-
+-        if ema50 and ema200:
+-            if ema50 > ema200 and metrics.current_price > ema50:
+-                ema_dir = 1
+-            elif ema50 < ema200 and metrics.current_price < ema50:
+-                ema_dir = -1
+-            else:
+-                ema_dir = 0
+-
+-            if ema_dir == 0:
+-                metrics.trend_status = "Ranging"
+-                components.trend = 0.0
+-            elif st_dir == ema_dir:
+-                metrics.trend_status = ("Uptrend" if ema_dir == 1 else "Downtrend") + " (Supertrend confirmed)"
+-                components.trend = 0.8
+-            else:
+-                metrics.trend_status = ("Uptrend" if ema_dir == 1 else "Downtrend") + " (Supertrend divergence)"
+-                components.trend = 0.4 * ema_dir
+-    except Exception as e:
+-        logger.warning(f"Trend calc failed: {e}")
+-
+-    # --- 2. Momentum Score (6%) — RSI + هیستوگرام MACD ---
+-    try:
+-        metrics.rsi = _last_indicator_value(df.ta.rsi(length=14))
+-        macd_df = df.ta.macd(fast=12, slow=26, signal=9)
+-        if macd_df is not None and not macd_df.empty:
+-            hist_col = [c for c in macd_df.columns if c.startswith("MACDh")]
+-            if hist_col and pd.notna(macd_df[hist_col[0]].iloc[-1]):
+-                metrics.macd_histogram = float(macd_df[hist_col[0]].iloc[-1])
+-
+-        if metrics.rsi is not None and metrics.macd_histogram is not None:
+-            if metrics.macd_histogram > 0 and metrics.rsi > 55:
+-                components.momentum = 0.8
+-            elif metrics.macd_histogram < 0 and metrics.rsi < 45:
+-                components.momentum = -0.8
+-            else:
+-                components.momentum = 0.0
+-    except Exception as e:
+-        logger.warning(f"Momentum calc failed: {e}")
+-
+-    # --- 3. Volatility / Regime Score (4%) — ADX + CHOP ---
+-    # ADX قدرت ترند، CHOP تشخیص رنج (>61.8 خردکننده / <38.2 ترند تمیز)
+-    try:
+-        adx_df = df.ta.adx(length=14)
+-        adx_val = None
+-        if adx_df is not None and not adx_df.empty:
+-            adx_col = [c for c in adx_df.columns if c.startswith("ADX")]
+-            if adx_col and pd.notna(adx_df[adx_col[0]].iloc[-1]):
+-                adx_val = float(adx_df[adx_col[0]]
+Preview truncated for large file
