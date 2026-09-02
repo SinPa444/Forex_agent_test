@@ -34,6 +34,28 @@ logger = logging.getLogger(__name__)
 
 TRADING_DAYS_PER_YEAR = 252
 
+# Phase 1 (W5): ثانیه‌ی یک سال معاملاتی (252 روز) — برای annualization
+# بر پایه‌ی فاصله‌ی واقعی کندل‌ها از index
+TRADING_SECONDS_PER_YEAR = TRADING_DAYS_PER_YEAR * 86400
+
+
+def bars_per_year_from_index(index: pd.Index) -> float:
+    """
+    Phase 1 (W5): تخمین bars-per-year از فاصله‌ی median کندل‌های index.
+
+    برای index نامنظم (گپ‌های آخر هفته در دیتای yfinance) median
+    از mean مقاوم‌تر است. اگر قابل محاسبه نبود → DEFAULT_BARS_PER_YEAR.
+    """
+    try:
+        deltas = pd.Series(index).diff().dropna()
+        if len(deltas) >= 2:
+            med = deltas.median()
+            if med > pd.Timedelta(0):
+                return TRADING_SECONDS_PER_YEAR / float(med.total_seconds())
+    except Exception:
+        pass
+    return config.DEFAULT_BARS_PER_YEAR
+
 
 # ===========================================================================
 # Event-aware slippage (از دیتابیس پروژه)
@@ -147,6 +169,7 @@ class BacktestResult:
     avg_trade_pct: float = 0.0
     exposure_pct: float = 0.0
     total_cost_pct: float = 0.0
+    bars_per_year: float = config.DEFAULT_BARS_PER_YEAR  # Phase 1 (W5)
     equity_curve: Optional[pd.Series] = field(default=None, repr=False)
     daily_returns: Optional[pd.Series] = field(default=None, repr=False)
 
@@ -172,10 +195,16 @@ def run_backtest(
     high_impact_dates: Optional[set] = None,
     entry_threshold: float = config.ENTRY_THRESHOLD,
     min_confidence: float = config.MIN_CONFIDENCE,
+    bars_per_year: Optional[float] = None,
 ) -> BacktestResult:
     """
     اجرای بک‌تست روی DataFrame خروجی walkforward (با ستون score/confidence/close).
+
+    bars_per_year (Phase 1 / W5): اگر None، از فاصله‌ی واقعی index تخمین
+    می‌شود (bars_per_year_from_index) — پیش‌فرض 252 فقط fallback است.
     """
+    if bars_per_year is None:
+        bars_per_year = bars_per_year_from_index(df.index)
     costs = config.SYMBOL_COSTS.get(symbol, config.DEFAULT_COSTS)
     pip_size = costs["pip_size"]
 
@@ -228,15 +257,15 @@ def run_backtest(
     wins = sum(1 for r in trade_returns if r > 0)
 
     n_bars = len(df)
-    years = n_bars / TRADING_DAYS_PER_YEAR
+    years = n_bars / bars_per_year
     total_ret = float(equity.iloc[-1] - 1)
 
     mean_r = float(strategy_ret.mean())
     std_r = float(strategy_ret.std())
-    sharpe = (mean_r / std_r * np.sqrt(TRADING_DAYS_PER_YEAR)) if std_r > 0 else 0.0
+    sharpe = (mean_r / std_r * np.sqrt(bars_per_year)) if std_r > 0 else 0.0
     downside = strategy_ret[strategy_ret < 0]
     sortino = (
-        mean_r / float(downside.std()) * np.sqrt(TRADING_DAYS_PER_YEAR)
+        mean_r / float(downside.std()) * np.sqrt(bars_per_year)
         if len(downside) > 1 and float(downside.std()) > 0 else 0.0
     )
 
@@ -250,6 +279,7 @@ def run_backtest(
         cagr_pct=((1 + total_ret) ** (1 / years) - 1) * 100 if years > 0 else 0.0,
         sharpe=sharpe,
         sortino=sortino,
+        bars_per_year=bars_per_year,
         max_drawdown_pct=_max_drawdown(equity),
         profit_factor=_profit_factor(trade_returns),
         win_rate_pct=(wins / n_trades * 100) if n_trades else 0.0,

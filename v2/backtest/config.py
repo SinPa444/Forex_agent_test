@@ -52,6 +52,23 @@ DEFAULT_COSTS: dict[str, float] = {
 # ضریب اسلیپیج در روزهای ایونت High impact (نقدینگی کم، گپ، widen شدن اسپرد)
 EVENT_SLIPPAGE_MULTIPLIER: float = 3.0
 
+# --- Annualization (Phase 1 / W5) ---
+# تعداد کندل در سال برای هر اینترول — کنوانسیون یکپارچه ۲۵۲ روز معاملاتی:
+# bars_per_year = 252 × (کندل در روز)
+# Sharpe/Sortino/CAGR با bars-per-year متناظر سالانه می‌شوند،
+# نه 252 برای همه تایم‌فریم‌ها (باگ W5 نسخه قبل).
+BARS_PER_YEAR: dict[str, float] = {
+    "1d": 252.0,     # 252 * 1
+    "1wk": 52.0,     # 252 / 5
+    "4h": 1512.0,    # 252 * 6
+    "2h": 3024.0,    # 252 * 12
+    "60m": 6048.0,   # 252 * 24
+    "1h": 6048.0,
+    "30m": 12096.0,  # 252 * 48
+    "15m": 24192.0,  # 252 * 96
+}
+DEFAULT_BARS_PER_YEAR: float = 252.0
+
 # --- قوانین تبدیل سیگنال به پوزیشن ---
 ENTRY_THRESHOLD: float = 0.20   # |score| >= این → ورود
 EXIT_BAND: float = 0.05         # |score| < این → خروج (سیگنال مرده)

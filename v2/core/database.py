@@ -663,6 +663,56 @@ class PaperPositionDB(Base):
                 f"status={self.status} pnl={self.pnl_money}>")
 
 
+class TechnicalDecisionDB(Base):
+    """
+    جدول technical_decisions (Phase 1): لاگ تصمیمات technical engine.
+
+    هر ردیف = یک تحلیل کامل (هر ticker×timeframe×run یک ردیف) با:
+      - snapshot کامل داده‌های خام (raw_context_json) — برای بازتولید score
+      - components_json — امتیاز ۱۰ فاکتور
+      - weights_hash + engine_version — کدام نسخه وزن‌ها/موتور
+      - provenance_json — منبع/پریود/tickهای دیتا (FetchProvenance)
+      - data_quality_json — گزارش کیفیت دیتا هنگام تحلیل
+      - llm_model / llm_status — حسابرسی لایه روایت (ok/guard_flagged/fallback)
+      - plan_id / trade_id — backfill بعدی (پیوند به strategy_plans/trade_outcomes)
+
+    Idempotency: dedup_hash UNIQUE (ticker+timeframe+run_id+قیمت+score) —
+    اجرای دوباره همان تحلیل در همان run ردیف تکراری نمی‌سازد.
+    """
+    __tablename__ = "technical_decisions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False, index=True)
+    run_id = Column(String, nullable=False, index=True)
+    currency = Column(String, nullable=False, index=True)
+    timeframe = Column(String, nullable=False)
+
+    engine_version = Column(String, nullable=False)
+    weights_hash = Column(String, nullable=False)
+
+    direction = Column(Integer, nullable=True)           # 1/-1/0 (از score)
+    score = Column(Float, nullable=True)
+    confidence = Column(Float, nullable=True)
+
+    components_json = Column(Text, nullable=True)        # امتیاز ۱۰ فاکتور
+    raw_context_json = Column(Text, nullable=True)       # snapshot کامل داده‌های خام
+    data_quality_json = Column(Text, nullable=True)
+    provenance_json = Column(Text, nullable=True)
+
+    llm_model = Column(String, nullable=True)
+    llm_status = Column(String, nullable=True)           # ok | guard_flagged | fallback
+    llm_guard_flags = Column(Text, nullable=True)
+
+    plan_id = Column(Integer, nullable=True)             # backfill → strategy_plans.id
+    trade_id = Column(Integer, nullable=True)            # backfill → trade_outcomes.id
+
+    dedup_hash = Column(String, nullable=False, unique=True, index=True)
+
+    def __repr__(self) -> str:
+        return (f"<TechnicalDecisionDB id={self.id} {self.currency} {self.timeframe} "
+                f"run={self.run_id} score={self.score}>")
+
+
 def get_trade_memory_stats(currency: str) -> dict:
     """
     Fetches historical trade performance stats for memory injection.
@@ -1017,6 +1067,40 @@ def insert_raw_news_item_if_new(
         existing = (
             session.query(RawNewsItemDB)
             .filter(RawNewsItemDB.dedup_hash == dedup_hash)
+            .first()
+        )
+        return existing, False
+    session.refresh(row)
+    return row, True
+
+
+def insert_technical_decision_if_new(
+    session: Session, *, dedup_hash: str, **fields: Any
+) -> tuple[Optional[TechnicalDecisionDB], bool]:
+    """
+    Idempotent insert into technical_decisions, keyed on the UNIQUE
+    index `TechnicalDecisionDB.dedup_hash`. Returns (row, created).
+
+    همان الگوی insert_raw_news_item_if_new: pre-check + گرفتن IntegrityError
+    در صورت race بین نویسندگان.
+    """
+    existing = (
+        session.query(TechnicalDecisionDB)
+        .filter(TechnicalDecisionDB.dedup_hash == dedup_hash)
+        .first()
+    )
+    if existing is not None:
+        return existing, False
+
+    row = TechnicalDecisionDB(dedup_hash=dedup_hash, **fields)
+    session.add(row)
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        existing = (
+            session.query(TechnicalDecisionDB)
+            .filter(TechnicalDecisionDB.dedup_hash == dedup_hash)
             .first()
         )
         return existing, False

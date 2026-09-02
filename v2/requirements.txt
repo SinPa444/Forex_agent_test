@@ -1,0 +1,25 @@
+# v2 — Multi-Agent FX System (Phase 1)
+# نصب:  pip install -r requirements.txt
+# (در محیط‌های PEP-668 از venv استفاده کنید)
+
+# --- داده و محاسبات deterministic ---
+pandas>=2.0
+numpy>=1.24
+yfinance>=0.2.40
+pandas-ta-classic>=0.6.52
+smartmoneyconcepts>=0.0.27
+
+# --- LLM و orchestration ---
+langchain-core>=0.3
+langchain-openai>=0.2
+langgraph>=0.2
+pydantic>=2.5
+
+# --- داده‌سازی و پایدیران ---
+SQLAlchemy>=2.0
+feedparser>=6.0
+requests>=2.31
+python-dotenv>=1.0
+
+# --- تست ---
+pytest>=8.0
