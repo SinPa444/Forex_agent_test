@@ -35,8 +35,20 @@ agents/
     nlp_event.py             # تحلیل LLM رویداد + امتیازدهی قطعی
     nlp_news.py              # تحلیل LLM خبر + Macro Digest
     nlp_x.py                 # تحلیل LLM سخنران
-  technical/
-    technical_analyzer.py    # امتیازدهنده قطعی SMC با ۷ مؤلفه وزنی
+  technical/                 # بازساخت Phase 1 — monolith → ماژول‌ها (semantics یکسان)
+    engine.py                # calculate_technical_metrics (API عمومی؛ ترکیب ۱۰ فاکتور)
+    analyzer.py              # TechnicalAgent: deterministic + روایت LLM + LLM Guard
+    llm_guard.py             # اعتبارسنجی روایت LLM در برابر سیگنال deterministic
+    models.py                # TechnicalMetrics / ComponentScores (Pydantic)
+    data/                    # fetch + FetchProvenance + DataQualityReport + CircuitBreaker
+    indicators/              # trend / momentum / volatility(ADX/CHOP/ATR) / price_action
+    structure/               # swings / BOS-CHoCH / FVG / Order Block / Liquidity
+    levels/                  # PDH/PDL / OTE
+    multi_timeframe/         # scan_timeframes (۷ TF، بدون LLM) + HTF bias
+    confluence/              # WEIGHTS + weights_hash + aggregate_score + confidence
+    signals/                 # DIRECTION_DEADBAND (±0.15) + TechnicalReport/LLMStrategy
+    technical_analyzer.py    # فکس سازگاری — import قدیمی‌ها از اینجا کار می‌کند
+    mtf_scanner.py           # فکس سازگاری اسکنر MTF
   risk/
     risk_manager.py          # تصمیم نهایی APPROVED/REJECTED/WAIT + TradePlan
   supervisor/
@@ -51,8 +63,19 @@ ingestion/
   seed_speakers.py              # سید ~۴۰ سخنران با وزن
 
 orchestration/
-  run_phase3.py          # ارکستراتور فاز ۳ (سیستم چندعاملی کامل)
+  run_phase3.py          # ارکستراتور فاز ۳ (سیستم چندعاملی کامل؛ Phase 1: run_id + decision log)
   trade_evaluator.py     # ارزیاب‌گر بی‌صدا WIN/LOSS/EXPIRED برای cron
+
+observability/           # Phase 1 — حسابرسی تصمیمات
+  decision_log.py        # ثبت هر تصمیم technical در technical_decisions (idempotent)
+  run_manifest.py        # manifest تکرارپذیری هر ران (نسخه موتور/وزن‌ها/hash کد/پکیج‌ها)
+
+scripts/                 # اسکریپت‌های ad-hoc (قبلاً در ریشه v2 بودند)
+backtest/
+  config.py              # هزینه‌های واقعی per-symbol + BARS_PER_YEAR (Phase 1 / W5)
+  walkforward.py         # اسکورینگ walk-forward با تابع پروداکشن (patch: data/market_data)
+  engine.py              # پوزیشن/هزینه/متریک‌ها (annualization متناسب با TF)
+  runner.py              # CLI بک‌تست IS/OOS + manifest ران
 
 run.py                   # CLI یکپارچه فاز ۱ (--mode news|events|speakers|all)
 run_phase2.py            # ارکستراتور فاز ۲
@@ -149,9 +172,21 @@ final_score = sentiment × speaker_weight × stmt_type_weight × (1+surprise)
 ```
 وزن نوع بیانیه: testimony/official_transcript=1.15، tweet=0.90.
 
-### تکنیکال (technical_analyzer.py) — ۷ مؤلفه وزنی
-structure=0.25، smc_location=0.20، trend=0.18، mtf_confluence=0.12 (فعلاً placeholder خنثی)، momentum=0.10، volatility=0.10، price_action=0.05.
-ابزارها: talipp (RSI/MACD/EMA/ADX) + smartmoneyconcepts (BOS/CHoCH/FVG/OB). امتیاز نهایی فقط اگر structure یا smc_location ارزیابی شده باشد. LLM فقط روایت استراتژی می‌نویسد.
+### تکنیکال (agents/technical/) — ۱۰ فاکتور وزنی
+Phase 1: monolith `technical_analyzer.py` به ماژول‌های `data/ indicators/ structure/ levels/ multi_timeframe/ confluence/ signals/` بازسازی شد — **semantics امتیازدهی بدون تغییر** (تست طلایی bit-identical در `tests/technical/test_golden.py`). فکس‌های سازگاری `technical_analyzer.py` و `mtf_scanner.py` import قدیمی‌ها را نگه می‌دارند.
+
+وزن‌ها (single source: `confluence/weights.py` — تغییر فقط با backtest):
+structure=0.20، smc_location=0.15، trend=0.13، liquidity_sweep=0.12، mtf_confluence=0.10، ote_zone=0.10، pdh_pdl=0.08، momentum=0.06، volatility=0.04، price_action=0.02.
+ابزارها: pandas-ta-classic (RSI/MACD/EMA/ADX/CHOP/ATR/Supertrend/CDL) + smartmoneyconcepts (BOS/CHoCH/FVG/OB/Liquidity/Retracement). امتیاز نهایی فقط اگر structure یا smc_location ارزیابی شده باشد. LLM فقط روایت استراتژی می‌نویسد (LLM Guard + `llm_status` در گزارش).
+
+تغییرات آگاهانه Phase 1 (مستند در تست‌ها):
+- deadband یکپارچه direction: **±0.15** (قبل: Agent ±0.1 / Scanner ±0.15) — بازه (0.10, 0.15) حالا NEUTRAL است
+- داده خام جدید بدون تأثیر روی score: ATR، ساختار خام BOS/CHoCH (age + sequence)، فاصله‌های OB/FVG، FetchProvenance، DataQualityReport
+- CircuitBreaker روی fetch بازار (۵ شکست → ۵ دقیقه)
+- `choch_aware` mode ساختار **خاموش** است (پیش‌فرض `bos_only`) — روشن‌سازی فقط با backtest A/B
+- W10 (مشاهده‌شده): فاکتور trend در حالت confirmed افت 0.8 ثابت برمی‌گرداند (هر دو جهت) — quirk نسخه قبل، فعلاً حفظ شده
+
+حسابرسی (Phase 1): هر ران یک `run_id` + manifest دارد (`observability/run_manifest.py` → `backtest/results/runs/<run_id>/manifest.json`) و هر تصمیم technical در جدول `technical_decisions` ثبت می‌شود (idempotent با `dedup_hash`؛ backfill به `plan_id`/`trade_id`).
 
 ### تجمیع فاز ۲ (phase2_graph.py)
 میانگین وزنی رویدادها (بر اساس impact)؛ پایه سلسله‌مراتبی: event > news > speaker.
@@ -183,6 +218,9 @@ Fallback در شکست LLM: اجرای کامل (همه True، H1).
 | `composite_signals` | سیگنال‌های تجمیعی فاز ۲ |
 | `raw_speaker_items` | متن‌های خام سخنران |
 | `trade_outcomes` | حافظه معاملات (entry_zone_low/high، SL/TP، وضعیت PENDING/WIN/LOSS/EXPIRED) |
+| `strategy_plans` | برگه‌های استراتژی شرطی Phase 7 (PENDING/TRIGGERED/FILLED/INVALIDATED/EXPIRED) |
+| `paper_account` / `paper_positions` | حساب و پوزیشن‌های مجازی Phase 8 |
+| `technical_decisions` | **Phase 1:** لاگ تصمیمات technical engine — snapshot خام + ۱۰ فاکتور + weights_hash + provenance + data quality + llm_status (idempotent با `dedup_hash`؛ backfill `plan_id`/`trade_id`) |
 
 `get_trade_memory_stats(currency)` → win_rate به‌صورت **عدد 0–100** (نه کسر!).
 `session_scope()` کانتکست‌منیجر تراکنش است.

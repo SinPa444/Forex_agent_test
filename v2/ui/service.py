@@ -310,10 +310,10 @@ def run_live_analysis(
                 if plan.activate_technical:
                     _emit(log_sink, f"[{ccy}] Running Technical Agent on {plan.technical_timeframe}...")
                     try:
+                        # Phase 1: پارامتر مرده temporal_context حذف شد (W6)
                         tech_metrics, tech_report = tech_agent.analyze(
                             route.ticker,
                             timeframe=plan.technical_timeframe,
-                            temporal_context=temporal_ctx,
                         )
                         res.tech_metrics = tech_metrics
                         res.tech_report = tech_report

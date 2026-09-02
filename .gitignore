@@ -1,11 +1,27 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Database files
+# --- دیتابیس‌ها ---
 *.db
 *.db.*
 
-# Database files
-*.db
-*.db.*
-
-# Environment variables
+# --- متغیرهای محیطی ---
 .env
+
+# --- خروجی بک‌تست (Phase 1: manifests و equity curves) ---
+v2/backtest/results/
+
+# --- Virtualenv ---
+.venv/
+venv/
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store

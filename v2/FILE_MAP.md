@@ -90,3 +90,65 @@ HTF bias: BULLISH (D1+W1 agree)
 [SCALP — M15]  INVALID
   note: counter-bias score -0.30 below 0.40 threshold
 ```
+
+---
+
+# Phase 1 — بازساخت موتور Technical + Lایه حسابرسی (فوق‌النسخ بر فایل‌های بالا)
+
+## تغییرات (semantics امتیازدهی بدون تغییر — تست طلایی bit-identical)
+
+### `agents/technical/` — monolith → ماژول‌ها
+| فایل جدید | نقش |
+|---|---|
+| `engine.py` | `calculate_technical_metrics` — ترکیب ۱۰ فاکتور + CircuitBreaker + provenance/data-quality |
+| `analyzer.py` | `TechnicalAgent` (زنجیره/prompt/fallbackها همان نسخه قبل + guard + `precomputed_metrics`) |
+| `llm_guard.py` | اعتبارسنجی روایت LLM (طول + تناقض جهت) |
+| `models.py` | `TechnicalMetrics`/`ComponentScores` + فیلد‌های افزایشی Phase 1 (atr, structure_raw, level_distances, data_quality_json, provenance_json, engine_version) |
+| `data/market_data.py` | `fetch_price_history` + `FetchProvenance` + `resample_from_1h` + `period_for_interval` |
+| `data/validators.py` | `validate_ohlc` → `DataQualityReport` (فقط گزارش) |
+| `data/circuit_breaker.py` | CLOSED/OPEN/HALF_OPEN (۵ شکست → ۳۰۰ ثانیه) |
+| `indicators/{trend,momentum,volatility,patterns,utils}.py` | فاکتورهای pandas-ta (ATR خام در volatility) |
+| `structure/{swings,bos_choch,fvg,order_blocks,liquidity}.py` | فاکتورهای SMC (BOS/CHoCH خام + age + sequence) |
+| `levels/{pdh_pdl,ote}.py` | PDH/PDL و OTE |
+| `multi_timeframe/{scanner,alignment}.py` | `scan_timeframes` + `compute_htf_bias` + `compute_mtf_confluence` (+ `valid_timeframes()` — رفع باگ W9) |
+| `confluence/{weights,scorer,confidence}.py` | WEIGHTS واحد + `weights_hash()` + تجمیع + confidence |
+| `signals/{technical_signal,report}.py` | `DIRECTION_DEADBAND=0.15` + مدل‌های خروجی (+ `llm_status`/`llm_guard_flags`) |
+| `technical_analyzer.py`, `mtf_scanner.py` | **فکس سازگاری** — import قدیمی‌ها دست‌نخورده |
+
+### `core/database.py`
+- جدول جدید `technical_decisions` (TechnicalDecisionDB) + `insert_technical_decision_if_new` (idempotent)
+
+### `observability/` (جدید)
+- `decision_log.py` — `log_technical_decision` (snapshot خام + ۱۰ فاکتور + hashes + llm) — سکوت در خطا
+- `run_manifest.py` — `new_run_id`/`start_manifest`/`update_manifest`/`finish_manifest` + `code_hash` → `backtest/results/runs/<run_id>/manifest.json`
+
+### `orchestration/run_phase3.py`
+- `run_id` + manifest ابتدای/پایان ران
+- decision log برای همه TFهای اسکن‌شده (TT روایت‌شده با `llm_status`)
+- `analyze(..., precomputed_metrics=strongest.metrics)` — حذف double-fetch + حذف پارامتر مرده `temporal_context` (W6)
+- backfill `plan_id`/`trade_id` در technical_decisions
+
+### `backtest/`
+- `config.py`: `BARS_PER_YEAR` (کنوانسیون ۲۵۲ روزه: 4h=1512, 60m=6048, ...) — رفع W5
+- `engine.py`: `bars_per_year_from_index` + پارامتر `bars_per_year` در `run_backtest` (Sharpe/Sortino/CAGR)
+- `walkforward.py`: patch جدید روی `data/market_data.fetch_price_history` (+ `DATA_SOURCE="historical_feeder"`)؛ **رفع W3/W4**: preload H4/H2 از 1h ری‌سیمپل می‌شود
+- `runner.py`: manifest ران + verdict هر نماد در manifest + انتقال bars_per_year
+
+### `tests/technical/` (جدید — ۹۷ تست)
+- `test_golden.py` — bit-identical با موتور قدیمی (H1/D1/H4 × ۲۵ فیلد) + فیلد‌های حسابرسی
+- `test_factors.py` — آستانه‌ها/clamp هر فاکتور
+- `test_weights.py` — مجموع وزن‌ها/استقرار hash/فرمول‌های تجمیع و confidence
+- `test_direction.py` — deadband یکپارچه + مستندسازی اختلاف W2 (بازه 0.10–0.15)
+- `test_data_layer.py` — validator/CB/resample/provenance
+- `test_backtest.py` — identity پروداکشن↔بک‌تست + patch target + W3/W4 + W5
+- `test_observability.py` — idempotency decision log + manifest
+- `test_analyzer.py` — guard/llm_status/precomputed (LLM تقلبی)
+
+### تغییرات آگاهانه (مستند — فقط این‌ها)
+1. deadband direction یکپارچه ±0.15 (W2) — بازه (0.10,0.15) → NEUTRAL
+2. `valid_timeframes()` اضافه شد (W9) — قبل با AttributeError کل MTF پایپ‌لاین کرش می‌کرد
+3. عزل خطای جدا برای فاکتورها (Structur/SWC قبلاً یک try مشترک داشتند) — روی دیتای سالم بی‌اثر
+4. fallback swing در `detect_swings` (با خطا، قبل کل بلوک SMC می‌مرد)
+5. `choch_aware` آماده اما **خاموش** (پیش‌فرض `bos_only`)
+6. داده‌های خام جدید (ATR، ساختار، فاصله‌ها، provenance، data quality) — بدون تأثیر روی score
+7. W10 مشاهده و مستند شد: trend confirmed = 0.8 ثابت (هر دو جهت) — quirk نسخه قبل، حفظ شد

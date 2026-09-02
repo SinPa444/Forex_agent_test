@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
@@ -26,6 +27,11 @@ import pandas as pd
 from . import config
 from .engine import BacktestResult, load_high_impact_dates, run_backtest
 from .walkforward import compute_score_series
+from agents.technical.confluence.weights import ENGINE_VERSION, weights_hash
+from agents.technical.data.market_data import TIMEFRAME_MAP
+from observability.run_manifest import (
+    code_hash, finish_manifest, new_run_id, start_manifest, update_manifest,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -97,11 +103,18 @@ def run_symbol_backtest(
 
     high_impact = load_high_impact_dates(currency)
 
+    # Phase 1 (W5): annualization متناسب با تایم‌فریم (نه 252 برای همه)
+    interval = TIMEFRAME_MAP.get(timeframe, "1d")
+    bars_per_year = config.BARS_PER_YEAR.get(interval)
+
     is_df, oos_df = split_is_oos(scored)
 
-    r_is = run_backtest(is_df, ticker, label="IS", high_impact_dates=high_impact)
-    r_oos = run_backtest(oos_df, ticker, label="OOS", high_impact_dates=high_impact)
-    r_full = run_backtest(scored, ticker, label="FULL", high_impact_dates=high_impact)
+    r_is = run_backtest(is_df, ticker, label="IS", high_impact_dates=high_impact,
+                        bars_per_year=bars_per_year)
+    r_oos = run_backtest(oos_df, ticker, label="OOS", high_impact_dates=high_impact,
+                         bars_per_year=bars_per_year)
+    r_full = run_backtest(scored, ticker, label="FULL", high_impact_dates=high_impact,
+                          bars_per_year=bars_per_year)
 
     print("\n  ── In-Sample (۷۰٪ اول) ──")
     print_result(r_is)
@@ -148,6 +161,31 @@ def main() -> None:
           f"| MinConf={config.MIN_CONFIDENCE} | MaxHold={config.MAX_HOLDING_BARS}bars")
     print("=" * 60)
 
+    # --- Phase 1: run_id + manifest تکرارپذیری برای کل بک‌تست ---
+    run_id = new_run_id()
+    manifest_path = start_manifest(
+        run_id=run_id,
+        engine_version=ENGINE_VERSION,
+        weights_hash=weights_hash(),
+        technical_code_hash=code_hash(
+            Path(__file__).resolve().parent.parent / "agents" / "technical"
+        ),
+        params={
+            "mode": "backtest",
+            "currencies": args.currencies,
+            "timeframe": args.timeframe,
+            "years": args.years,
+            "entry_threshold": config.ENTRY_THRESHOLD,
+            "exit_band": config.EXIT_BAND,
+            "min_confidence": config.MIN_CONFIDENCE,
+            "max_holding_bars": config.MAX_HOLDING_BARS,
+            "oos_ratio": config.OOS_RATIO,
+            "bars_per_year": config.BARS_PER_YEAR.get(
+                TIMEFRAME_MAP.get(args.timeframe, "1d")
+            ),
+        },
+    )
+
     all_results = {}
     for ccy in args.currencies:
         try:
@@ -157,6 +195,22 @@ def main() -> None:
             )
             if res:
                 all_results[ccy] = res
+                # ثبت verdict هر نماد در manifest
+                update_manifest(
+                    manifest_path,
+                    **{
+                        f"verdict_{ccy}": {
+                            "OOS_sharpe": round(res["OOS"].sharpe, 4),
+                            "OOS_max_dd_pct": round(res["OOS"].max_drawdown_pct, 4),
+                            "OOS_profit_factor": (
+                                round(res["OOS"].profit_factor, 4)
+                                if res["OOS"].profit_factor != float("inf") else "inf"
+                            ),
+                            "OOS_trades": res["OOS"].trades,
+                            "verdict": _verdict(res["OOS"]),
+                        }
+                    },
+                )
         except Exception as exc:
             logger.error("بک‌تست %s شکست خورد: %s", ccy, exc, exc_info=True)
 
@@ -179,6 +233,11 @@ def main() -> None:
         print(f"\n  {n_pass}/{len(all_results)} symbols passed OOS criteria "
               f"(Sharpe≥{config.PASS_SHARPE}, MaxDD≤{config.PASS_MAX_DD_PCT}%, "
               f"PF≥{config.PASS_PROFIT_FACTOR})")
+    else:
+        print("\n  No symbol produced results.")
+
+    # --- Phase 1: بستن manifest ران ---
+    finish_manifest(manifest_path, status="completed")
 
 
 if __name__ == "__main__":

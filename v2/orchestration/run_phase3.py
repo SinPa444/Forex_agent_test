@@ -14,11 +14,18 @@ import sys
 import time
 import datetime as dt
 import hashlib
+from pathlib import Path
 
 from core.database import init_db, TradeOutcomeDB, StrategyPlanDB
 from agents.fundamental.phase2_graph import build_phase2_graph, build_cross_asset_graph, get_temporal_context
 from agents.technical.technical_analyzer import TechnicalAgent
 from agents.technical.mtf_scanner import scan_timeframes
+from agents.technical.confluence.weights import ENGINE_VERSION, weights_hash
+from agents.technical.signals.technical_signal import direction_from_score
+from observability.decision_log import log_technical_decision
+from observability.run_manifest import (
+    code_hash, finish_manifest, new_run_id, start_manifest,
+)
 from agents.risk.risk_manager import (
     RiskManagerAgent, RiskDecision, TradePlan,
     build_strategy_sheet, render_strategy_sheet_text,
@@ -212,11 +219,32 @@ def main():
     temporal_ctx = get_temporal_context()
     logger.info(f"Temporal Context: {temporal_ctx['day_of_week']}, {temporal_ctx['market_session']} | Weekend: {temporal_ctx['is_weekend']}")
 
+    # --- Phase 1: run_id + manifest تکرارپذیری ---
+    run_id = new_run_id()
+    _v2_root = Path(__file__).resolve().parent.parent
+    manifest_path = start_manifest(
+        run_id=run_id,
+        engine_version=ENGINE_VERSION,
+        weights_hash=weights_hash(),
+        technical_code_hash=code_hash(_v2_root / "agents" / "technical"),
+        params={
+            "currencies": args.currencies,
+            "llm_provider": args.llm_provider,
+            "llm_model": args.llm_model,
+            "head_llm": args.head_llm,
+            "risk_llm": args.risk_llm,
+            "reports": args.reports,
+            "no_digest_cache": args.no_digest_cache,
+            "skip_ingestion": args.skip_ingestion,
+        },
+    )
+
     composite_signals = {}
     strategy_sheets: dict[str, StrategySheet] = {}
 
     print("\n" + "=" * 70)
     print(f"🚀 PHASE 3 MULTI-AGENT EXECUTING FOR: {', '.join(args.currencies)}")
+    print(f"🆔 Run: {run_id} | Engine: v{ENGINE_VERSION} (weights {weights_hash()})")
     print(f"💰 Token-optimized mode | Reports: {'ON' if args.reports else 'OFF'} | "
           f"Head LLM: {'ON' if args.head_llm else 'rule-based'} | "
           f"Risk LLM: {'ON' if args.risk_llm else 'rule-based'} | "
@@ -267,6 +295,7 @@ def main():
             
         # 3. Technical Agent — Phase 7: اسکن چند تایم‌فریمی deterministic + narrative فقط برای قوی‌ترین TF
         tech_metrics, tech_report, mtf_matrix = None, None, None
+        strongest_tf: str | None = None
         if plan.activate_technical:
             logger.info(f"[{ccy}] Running MTF scan (W1/D1/H4/H2/H1/M30/M15 — zero LLM)...")
             try:
@@ -278,12 +307,64 @@ def main():
                 strongest = mtf_matrix.strongest()
                 if strongest is not None:
                     logger.info(f"[{ccy}] LLM narrative for strongest TF: {strongest.timeframe} (score {strongest.score:+.2f})")
+                    # Phase 1: passthrough metrics محاسبه‌شده در اسکن — fetch دوباره حذف شد
                     tech_metrics, tech_report = tech_agent.analyze(
-                        route.ticker, timeframe=strongest.timeframe, temporal_context=temporal_ctx
+                        route.ticker,
+                        timeframe=strongest.timeframe,
+                        precomputed_metrics=strongest.metrics,
                     )
+                    strongest_tf = strongest.timeframe
                     logger.info(f"[{ccy}] Technical ({strongest.timeframe}) Dir: {tech_report.direction} | Score: {tech_report.score:.2f}")
             except Exception as exc:
                 logger.error(f"[{ccy}] MTF/technical pipeline failed: {exc}")
+
+        # 3.1 Phase 1: decision log — snapshot هر TF اسکن‌شده (idempotent با dedup_hash)
+        if mtf_matrix is not None:
+            try:
+                llm_model_name = getattr(llm, "model", None) or args.llm_model or args.llm_provider
+                from agents.technical.signals.report import TechnicalReport as _TR
+
+                with session_scope() as decision_session:
+                    for ts in mtf_matrix.scores:
+                        if ts.metrics.technical_score is None:
+                            continue  # TF ناکام — ردیف معناداری برای ثبت ندارد
+                        if ts.timeframe == strongest_tf and tech_report is not None:
+                            # TF روایت‌شده — با اطلاعات LLM
+                            log_technical_decision(
+                                session=decision_session,
+                                ticker=route.ticker,
+                                timeframe=ts.timeframe,
+                                run_id=run_id,
+                                metrics=ts.metrics,
+                                report=tech_report,
+                                engine_version=ENGINE_VERSION,
+                                weights_hash=weights_hash(),
+                                llm_model=llm_model_name,
+                            )
+                        else:
+                            # TF بدون روایت LLM — direction/score از deterministic
+                            mini_report = _TR(
+                                direction=direction_from_score(ts.score),
+                                score=ts.score,
+                                confidence=ts.confidence,
+                                strategy="(not narrated this run)",
+                                reasoning="MTF scan entry — deterministic only.",
+                                llm_status="not_narrated",
+                            )
+                            log_technical_decision(
+                                session=decision_session,
+                                ticker=route.ticker,
+                                timeframe=ts.timeframe,
+                                run_id=run_id,
+                                metrics=ts.metrics,
+                                report=mini_report,
+                                engine_version=ENGINE_VERSION,
+                                weights_hash=weights_hash(),
+                                llm_model=None,
+                            )
+                logger.debug(f"[{ccy}] Decision log updated for {len(mtf_matrix.scores)} TFs")
+            except Exception as exc:
+                logger.warning(f"[{ccy}] Decision log failed (non-fatal): {exc}")
                 
         # 4. Risk Manager Agent — Phase 7: Strategy Engine (پیش‌فرض) یا مسیر LLM legacy
         strategy_sheet = None
@@ -378,6 +459,20 @@ def main():
                         session_db.flush()  # برای گرفتن id
                         if p.status == "ACTIVE":
                             active_plan_ids[p.horizon_label] = row.id
+                        # Phase 1: backfill plan_id در decision log (پیوند تصمیم ← پلن)
+                        try:
+                            from core.database import TechnicalDecisionDB
+                            (
+                                session_db.query(TechnicalDecisionDB)
+                                .filter(
+                                    TechnicalDecisionDB.run_id == run_id,
+                                    TechnicalDecisionDB.currency == route.ticker,
+                                    TechnicalDecisionDB.timeframe == p.timeframe,
+                                )
+                                .update({"plan_id": row.id}, synchronize_session=False)
+                            )
+                        except Exception as _bf_exc:
+                            logger.debug(f"[{ccy}] plan_id backfill skipped: {_bf_exc}")
                 logger.info(
                     f"[{ccy}] Strategy plans saved: "
                     f"{len(strategy_sheet.active_plans())} ACTIVE, {len(strategy_sheet.pending_plans())} PENDING"
@@ -472,6 +567,17 @@ def main():
                             decision_reasoning=active_reason or risk_decision.reasoning,
                         )
                         session_db.add(new_trade)
+                        session_db.flush()  # برای گرفتن id
+                        # Phase 1: backfill trade_id در decision log (پیوند تصمیم ← معامله)
+                        try:
+                            from core.database import TechnicalDecisionDB
+                            session_db.query(TechnicalDecisionDB).filter(
+                                TechnicalDecisionDB.run_id == run_id,
+                                TechnicalDecisionDB.currency == route.ticker,
+                                TechnicalDecisionDB.timeframe == active_tf,
+                            ).update({"trade_id": new_trade.id}, synchronize_session=False)
+                        except Exception as _bf_exc:
+                            logger.debug(f"[{ccy}] trade_id backfill skipped: {_bf_exc}")
                     logger.info(f"[{ccy}] Trade registered in Memory DB for tracking.")
                 except Exception as db_exc:
                     logger.info(f"[{ccy}] Failed to register trade in Memory DB: {db_exc}")
@@ -495,6 +601,7 @@ def main():
 
     if not composite_signals:
         print("\nNo signals generated. Exiting.")
+        finish_manifest(manifest_path, status="no_signals")
         return
 
     # Stage 2: Cross-Asset Consistency Graph & Global Summary
@@ -544,6 +651,9 @@ def main():
     for ccy in args.currencies:
         sheet = strategy_sheets.get(ccy)
         print_final_execution_summary(ccy, sheet)
+
+    # --- Phase 1: بستن manifest ران ---
+    finish_manifest(manifest_path, status="completed")
 
 if __name__ == "__main__":
     sys.exit(main())
